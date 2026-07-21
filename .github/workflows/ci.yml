@@ -1,0 +1,14 @@
+name: XDDesignKit CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  verify:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build, test, and build demo
+        run: bash Scripts/verify.sh

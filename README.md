@@ -1,0 +1,148 @@
+# XDDesignKit
+
+UIKit 组件库，最低支持 iOS 14，使用 Swift Package Manager。当前处于稳定内核 Alpha 阶段。
+
+## 架构
+
+```text
+Tokens → XDTheme → XDThemeContext → XDThemeResolver → Component
+```
+
+- `XDTheme`：完整、不可变的主题快照。
+- `XDThemeContext`：全局或 scene/window 独立主题。
+- `XDThemeResolver`：结合组件当前 Trait 解析颜色、字体和 Metric。
+- `XDThemeComponents`：承载 Button 等组件专属 Appearance 和 Metric。
+
+## 字体
+
+默认字体族为 PingFang SC，Regular、Medium 和 Semibold 会映射到对应字体文件；不可用时自动回退到系统字体。
+
+组件和稳定业务 UI 优先使用语义 Token，字号、字重、行高、字间距和 Dynamic Type 策略都由 Theme 集中管理：
+
+```swift
+let resolver = XDThemeResolver(theme: theme, traitCollection: view.traitCollection)
+label.font = resolver.font(.body)
+label.attributedText = NSAttributedString(
+    string: "Content",
+    attributes: resolver.textAttributes(font: .body, color: .textPrimary)
+)
+```
+
+迁移旧代码或少量确需固定字号的界面，可使用显式逃生口：
+
+```swift
+label.font = XDFont.fixed.regular(16)
+label.font = XDFont.fixed.medium(18)
+label.font = XDFont.fixed.semibold(20)
+```
+
+如果同一规格在多个稳定界面重复出现，应提取为语义 `XDFontToken`，不继续复制字号。详细分层、自定义 Token 和迁移规则见 `Sources/XDDesignKit/Theme/TYPOGRAPHY.md`。
+
+## 基础使用
+
+```swift
+import XDDesignKit
+
+let button = XDButton(style: .primary, size: .large)
+button.setTitle("Confirm", for: .normal)
+button.onTap = { print("tap") }
+
+button.setIcon(.arrowForward, placement: .trailing)
+button.loadingAccessibilityValue = "Loading"
+button.isLoading = true
+
+try XDThemeManager.shared.apply(.blueTheme)
+```
+
+默认 large 按钮高度 48pt、圆角 8pt、字体 Regular 16pt。项目两种高频样式可直接使用：
+
+```swift
+let darkButton = XDButton(style: .primary, size: .large) // #222222 底、白字
+let lightButton = XDButton(style: .outline, size: .large) // 白底、#222222 字和 0.5pt 边框
+let themedButton = XDButton(style: .brand, size: .large) // 跟随品牌主题
+```
+
+当前项目不启用暗黑自动反转，因此 `primary` 和 `outline` 在 Light/Dark Mode 下保持固定产品色；`brand` 等主题型 Style 仍按主题 Token 解析。
+
+Button 支持纯文字、纯图标，以及 leading、trailing、top、bottom 四方向图文布局。方向性图标在 RTL 环境自动镜像：
+
+```swift
+let iconButton = XDButton(style: .text, size: .small)
+iconButton.setIcon(.refresh, placement: .only)
+iconButton.accessibilityLabel = "Refresh"
+
+let promotion = XDButton(style: .gradient, size: .large)
+promotion.setTitle("Upgrade", for: .normal)
+
+let vertical = XDButton(style: .outline, size: .large)
+vertical.setTitle("Complete", for: .normal)
+vertical.setIcon(.checkmarkCircle, placement: .top)
+vertical.stackedContentPaddingOverride = 16 // nil restores the theme value
+```
+
+业务图标优先通过 `XDIconToken` 和注入的 `XDIconProviding` 解析；临时图片可使用 `setIconImage(...)`。
+如果业务改用 UIButton 原生 `setImage(_:for:)`，原生图片会接管对应状态，后续主题刷新不会恢复之前的语义图标。
+
+多 Scene 使用独立 Context：
+
+```swift
+let context = try XDThemeContext(initialTheme: .blueTheme)
+let button = XDButton(themeContext: context)
+```
+
+Storyboard/Nib 创建的 Button 可在 scene 确定后调用：
+
+```swift
+button.bindThemeContext(context)
+```
+
+## 自定义主题
+
+主题必须显式声明基主题：
+
+```swift
+let brandTheme = XDTheme(
+    identifier: "app.brand",
+    displayName: "Brand",
+    colors: [
+        .brandPrimary: XDThemeColor(light: brandLight, dark: brandDark)
+    ],
+    basedOn: .defaultTheme
+)
+```
+
+非法主题会抛出 `XDThemeValidationError`。
+
+## 编写组件
+
+组件遵循 `XDThemeable`，并且只通过注入 Context 对应的 Resolver 获取视觉值：
+
+```swift
+func xdApplyTheme() {
+    let resolver = xdThemeResolver
+    backgroundColor = resolver.color(.backgroundPrimary)
+    layer.borderColor = resolver.color(.borderPrimary).cgColor
+    layer.borderWidth = resolver.borderWidth(.regular)
+    layer.xdApplyShadow(.card, resolver: resolver)
+}
+```
+
+核心规则：
+
+- 组件实现中不写视觉魔法数字。
+- 通用值使用 Foundation Token；组件专属值放组件 Theme/Metric/Appearance。
+- 组件内部不混用全局主题快捷 API。
+- 必须验证 Dynamic Type、VoiceOver、RTL、Dark Mode、高对比度和 Reduce Motion。
+- Layer CGColor 和 Metric 约束在 `xdApplyTheme()` 中刷新。
+
+完整架构方向见 `PROJECT_NOTES.md`，API 规则见 `API_STABILITY.md`。
+
+## 验证
+
+```sh
+bash Scripts/verify.sh
+```
+
+该脚本执行严格并发构建、测试和 Demo 构建。
+
+Demo 首页的“打开 XDButton 独立体验页”可进入按钮交互测试界面，实时切换样式、状态、图标位置、RTL、主题和明暗模式。
