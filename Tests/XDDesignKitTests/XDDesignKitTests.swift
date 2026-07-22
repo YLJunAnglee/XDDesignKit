@@ -93,6 +93,297 @@ final class XDDesignKitTests: XCTestCase {
         XCTAssertEqual(button.contentEdgeInsets.left, 24, accuracy: 0.001)
     }
 
+    func testAlertThemeCanBeOverriddenThroughThemeComponents() throws {
+        let alert = XDAlertTheme.default.merging(
+            cardMaximumWidth: 360,
+            contentHorizontalInset: 28,
+            sectionContentInset: 12,
+            inputHeight: 52,
+            closeButtonSize: 48,
+            checkboxTitleSpacing: 6,
+            checkboxMinimumHeight: 28,
+            checkboxMinimumHitTargetSize: 48,
+            presentationScale: 0.9
+        )
+        let theme = XDTheme(
+            identifier: "xd.alert-metric-test",
+            displayName: "Alert Metric Test",
+            colors: [:],
+            components: .default.merging(alert: alert),
+            basedOn: .defaultTheme
+        )
+        let context = try XDThemeContext(initialTheme: theme)
+
+        XCTAssertEqual(context.currentTheme.components.alert.cardMaximumWidth, 360, accuracy: 0.001)
+        XCTAssertEqual(context.currentTheme.components.alert.contentHorizontalInset, 28, accuracy: 0.001)
+        XCTAssertEqual(context.currentTheme.components.alert.sectionContentInset, 12, accuracy: 0.001)
+        XCTAssertEqual(context.currentTheme.components.alert.inputHeight, 52, accuracy: 0.001)
+        XCTAssertEqual(context.currentTheme.components.alert.closeButtonSize, 48, accuracy: 0.001)
+        XCTAssertEqual(context.currentTheme.components.alert.checkboxTitleSpacing, 6, accuracy: 0.001)
+        XCTAssertEqual(context.currentTheme.components.alert.checkboxMinimumHeight, 28, accuracy: 0.001)
+        XCTAssertEqual(context.currentTheme.components.alert.checkboxMinimumHitTargetSize, 48, accuracy: 0.001)
+        XCTAssertEqual(context.currentTheme.components.alert.presentationScale, 0.9, accuracy: 0.001)
+    }
+
+    func testAlertThemeRejectsTooSmallAccessibilityHitAreas() {
+        let invalid = XDAlertTheme.default.merging(
+            closeButtonSize: 40,
+            checkboxMinimumHitTargetSize: 40
+        )
+
+        XCTAssertFalse(invalid.validationErrors().isEmpty)
+    }
+
+    func testAlertActionFactoriesKeepRoleAndAppearanceIndependent() {
+        let cancel = XDAlertAction.cancel("取消")
+        let primary = XDAlertAction.primary("确定")
+        let destructive = XDAlertAction.destructive("删除")
+        let text = XDAlertAction.text("稍后处理")
+
+        XCTAssertEqual(cancel.role, .cancel)
+        XCTAssertEqual(cancel.appearance, .outlined)
+        XCTAssertEqual(primary.role, .normal)
+        XCTAssertEqual(primary.appearance, .filled)
+        XCTAssertEqual(destructive.role, .destructive)
+        XCTAssertEqual(destructive.appearance, .filled)
+        XCTAssertEqual(text.appearance, .text)
+    }
+
+    func testAlertActionSupportsManualDismissalForAsyncWork() {
+        let action = XDAlertAction.primary("上传", automaticallyDismisses: false)
+
+        XCTAssertFalse(action.automaticallyDismisses)
+    }
+
+    func testAlertReportsMissingSceneWithoutPresenting() {
+        let presenter = UIViewController()
+        let handle = XDAlert.show(
+            on: presenter,
+            title: "提示",
+            actions: [.primary("知道了")]
+        )
+
+        XCTAssertEqual(handle.presentationFailure, .presenterNotAttachedToScene)
+        XCTAssertFalse(handle.isPresented)
+    }
+
+    func testAlertTextAlignmentUsesVisualWidthInsteadOfFontLineHeight() {
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont.systemFont(ofSize: 16),
+            .paragraphStyle: {
+                let style = NSMutableParagraphStyle()
+                style.minimumLineHeight = 24
+                style.maximumLineHeight = 24
+                return style
+            }()
+        ]
+
+        XCTAssertEqual(
+            XDAlertTextAlignmentResolver.alignment(
+                for: NSAttributedString(string: "操作成功", attributes: attributes),
+                availableWidth: 240
+            ),
+            .center
+        )
+        XCTAssertEqual(
+            XDAlertTextAlignmentResolver.alignment(
+                for: NSAttributedString(
+                    string: "这是一段宽度明显超过弹窗内容区域的说明文字",
+                    attributes: attributes
+                ),
+                availableWidth: 120
+            ),
+            .natural
+        )
+    }
+
+    func testAlertTitleAndMessageUseAdaptiveAlignmentByDefault() throws {
+        let context = try XDThemeContext(initialTheme: .defaultTheme)
+        let contentView = XDAlertStandardContentView(
+            configuration: .init(
+                title: "提示",
+                message: "这是一段宽度会超过弹窗单行内容区域的说明文字",
+                showsCloseButton: true
+            ),
+            themeContext: context,
+            onAction: { _ in },
+            onClose: {}
+        )
+        layoutAlertContentView(contentView)
+
+        let titleLabel = try XCTUnwrap(descendantLabels(in: contentView).first { $0.text == "提示" })
+        let messageLabel = try XCTUnwrap(
+            descendantLabels(in: contentView).first {
+                $0.text == "这是一段宽度会超过弹窗单行内容区域的说明文字"
+            }
+        )
+
+        XCTAssertEqual(titleLabel.textAlignment, .center)
+        XCTAssertEqual(messageLabel.textAlignment, .natural)
+    }
+
+    func testAlertTitleAndMessageAlignmentCanBeOverriddenIndependently() throws {
+        let context = try XDThemeContext(initialTheme: .defaultTheme)
+        let contentView = XDAlertStandardContentView(
+            configuration: .init(
+                title: "提示",
+                message: "这是一段宽度会超过弹窗单行内容区域的说明文字",
+                showsCloseButton: true,
+                titleAlignment: .leading,
+                messageAlignment: .center
+            ),
+            themeContext: context,
+            onAction: { _ in },
+            onClose: {}
+        )
+        layoutAlertContentView(contentView)
+
+        let titleLabel = try XCTUnwrap(descendantLabels(in: contentView).first { $0.text == "提示" })
+        let messageLabel = try XCTUnwrap(
+            descendantLabels(in: contentView).first {
+                $0.text == "这是一段宽度会超过弹窗单行内容区域的说明文字"
+            }
+        )
+
+        XCTAssertEqual(titleLabel.textAlignment, .natural)
+        XCTAssertEqual(messageLabel.textAlignment, .center)
+    }
+
+    func testAlertTextLengthUsesComposedCharacters() {
+        let field = UITextField()
+        field.text = "背书📚学习"
+        let controller = XDAlertTextFieldLengthController(maximumLength: 3)
+
+        controller.enforceMaximumLength(in: field)
+
+        XCTAssertEqual(field.text, "背书📚")
+    }
+
+    func testAlertStandardConfigurationAcceptsSupportedAccessories() {
+        let checkbox = XDAlertConfiguration(
+            title: "删除分类",
+            message: "此操作无法撤销",
+            accessory: .checkbox(title: "同时删除文档", isSelected: true),
+            actions: [.cancel("取消"), .primary("删除")]
+        )
+        let textField = XDAlertConfiguration(
+            title: "新建分类",
+            accessory: .textField(placeholder: "请输入名称", maximumLength: 20),
+            actions: [.primary("确定")]
+        )
+
+        XCTAssertEqual(checkbox.actions.count, 2)
+        XCTAssertEqual(textField.actions.count, 1)
+    }
+
+    func testAlertCheckboxAssetsAreBundled() {
+        XCTAssertNotNil(
+            UIImage(
+                named: "xd_alert_checkbox_unselected",
+                in: XDBundle.module,
+                compatibleWith: nil
+            )
+        )
+        XCTAssertNotNil(
+            UIImage(
+                named: "xd_alert_checkbox_selected",
+                in: XDBundle.module,
+                compatibleWith: nil
+            )
+        )
+    }
+
+    func testAlertCheckboxContentAndEmptyAreaHitTheControl() throws {
+        let context = try XDThemeContext(initialTheme: .defaultTheme)
+        let contentView = XDAlertStandardContentView(
+            configuration: .init(
+                title: "提示",
+                accessory: .checkbox(title: "同时删除分类下的文档"),
+                showsCloseButton: true
+            ),
+            themeContext: context,
+            onAction: { _ in },
+            onClose: {}
+        )
+        let fittedSize = contentView.systemLayoutSizeFitting(
+            CGSize(width: 272, height: UIView.layoutFittingCompressedSize.height),
+            withHorizontalFittingPriority: .required,
+            verticalFittingPriority: .fittingSizeLevel
+        )
+        contentView.frame = CGRect(origin: .zero, size: fittedSize)
+        contentView.layoutIfNeeded()
+
+        let checkbox = descendantControls(in: contentView).first {
+            $0.accessibilityLabel == "同时删除分类下的文档"
+        }
+        let control = try XCTUnwrap(checkbox)
+
+        XCTAssertEqual(control.bounds.height, 24, accuracy: 0.001)
+        XCTAssertTrue(control.point(inside: CGPoint(x: control.bounds.midX, y: -9), with: nil))
+        XCTAssertTrue(control.point(inside: CGPoint(x: control.bounds.midX, y: control.bounds.maxY + 9), with: nil))
+        XCTAssertTrue(control.hitTest(CGPoint(x: 12, y: control.bounds.midY), with: nil) === control)
+        XCTAssertTrue(
+            control.hitTest(
+                CGPoint(x: control.bounds.maxX - 1, y: control.bounds.midY),
+                with: nil
+            ) === control
+        )
+    }
+
+    func testAlertCheckboxVariantMatchesFigmaLayoutMetrics() throws {
+        let context = try XDThemeContext(initialTheme: .defaultTheme)
+        let contentView = XDAlertStandardContentView(
+            configuration: .init(
+                title: "确定删除分类吗？",
+                message: "删除分类后，该分类下的背书文档将变成无分类",
+                accessory: .checkbox(title: "同时删除分类下的背书文档"),
+                actions: [.cancel("button"), .primary("button")]
+            ),
+            themeContext: context,
+            onAction: { _ in },
+            onClose: {}
+        )
+        let contentWidth = XDAlertTheme.default.cardMaximumWidth
+            - 2 * XDAlertTheme.default.contentHorizontalInset
+        let fittedSize = contentView.systemLayoutSizeFitting(
+            CGSize(width: contentWidth, height: UIView.layoutFittingCompressedSize.height),
+            withHorizontalFittingPriority: .required,
+            verticalFittingPriority: .fittingSizeLevel
+        )
+
+        XCTAssertEqual(contentWidth, 272, accuracy: 0.001)
+        XCTAssertEqual(fittedSize.height, 222, accuracy: 0.001)
+        XCTAssertEqual(
+            fittedSize.height + 2 * XDAlertTheme.default.contentVerticalInset,
+            250,
+            accuracy: 0.001
+        )
+    }
+
+    private func descendantControls(in view: UIView) -> [UIControl] {
+        view.subviews.flatMap { subview in
+            (subview as? UIControl).map { [$0] } ?? descendantControls(in: subview)
+        }
+    }
+
+    private func descendantLabels(in view: UIView) -> [UILabel] {
+        view.subviews.flatMap { subview in
+            (subview as? UILabel).map { [$0] } ?? descendantLabels(in: subview)
+        }
+    }
+
+    private func layoutAlertContentView(_ contentView: XDAlertStandardContentView) {
+        let contentWidth = XDAlertTheme.default.cardMaximumWidth
+            - 2 * XDAlertTheme.default.contentHorizontalInset
+        let fittedSize = contentView.systemLayoutSizeFitting(
+            CGSize(width: contentWidth, height: UIView.layoutFittingCompressedSize.height),
+            withHorizontalFittingPriority: .required,
+            verticalFittingPriority: .fittingSizeLevel
+        )
+        contentView.frame = CGRect(origin: .zero, size: fittedSize)
+        contentView.layoutIfNeeded()
+    }
+
     func testPingFangFontFamilyResolvesProjectWeightsAndFallsBackSafely() {
         XCTAssertEqual(XDFontFamily.pingFangSC.font(ofSize: 16, weight: .regular).fontName, "PingFangSC-Regular")
         XCTAssertEqual(XDFontFamily.pingFangSC.font(ofSize: 18, weight: .medium).fontName, "PingFangSC-Medium")

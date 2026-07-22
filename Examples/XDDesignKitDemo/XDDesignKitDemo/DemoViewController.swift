@@ -59,6 +59,9 @@ final class DemoViewController: UIViewController, XDThemeable {
 
         contentStack.addArrangedSubview(sectionTitle("Buttons"))
         contentStack.addArrangedSubview(buttonSamples())
+
+        contentStack.addArrangedSubview(sectionTitle("Alerts"))
+        contentStack.addArrangedSubview(alertSamples())
     }
 
     private func sectionTitle(_ text: String) -> UILabel {
@@ -271,6 +274,21 @@ final class DemoViewController: UIViewController, XDThemeable {
 
         [loading, longText, rightToLeft].forEach(stack.addArrangedSubview)
 
+        return card(stack)
+    }
+
+    private func alertSamples() -> UIView {
+        let stack = UIStackView()
+        stack.axis = .vertical
+        stack.spacing = XDSpacing.sm
+
+        let openAlertDemo = XDButton(style: .primary, size: .large)
+        openAlertDemo.setTitle("打开 XDAlert 独立体验页", for: .normal)
+        openAlertDemo.setIcon(.arrowForward, placement: .trailing)
+        openAlertDemo.onTap = { [weak self] in
+            self?.navigationController?.pushViewController(XDAlertDemoViewController(), animated: true)
+        }
+        stack.addArrangedSubview(openAlertDemo)
         return card(stack)
     }
 

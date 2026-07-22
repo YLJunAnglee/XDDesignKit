@@ -11,9 +11,10 @@
 		111111111111111111111102 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111111002 /* SceneDelegate.swift */; };
 		111111111111111111111103 /* DemoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111111003 /* DemoViewController.swift */; };
 		111111111111111111111109 /* XDButtonDemoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111111009 /* XDButtonDemoViewController.swift */; };
-		111111111111111111111104 /* XDDesignKit in Frameworks */ = {isa = PBXBuildFile; productRef = 111111111111111111111008 /* XDDesignKit */; };
+		111111111111111111111110 /* XDAlertDemoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C035C40E300F961B00F9B493 /* XDAlertDemoViewController.swift */; };
 		222222222222222222222101 /* XDDesignKitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222222222222222222222001 /* XDDesignKitTests.swift */; };
-		222222222222222222222102 /* XDDesignKit in Frameworks */ = {isa = PBXBuildFile; productRef = 111111111111111111111008 /* XDDesignKit */; };
+		C035C40C300F961B00F9B493 /* XDDesignKit in Frameworks */ = {isa = PBXBuildFile; productRef = C035C40B300F961B00F9B493 /* XDDesignKit */; };
+		C035C40D300F961B00F9B493 /* XDDesignKit in Frameworks */ = {isa = PBXBuildFile; productRef = C035C40B300F961B00F9B493 /* XDDesignKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -21,8 +22,9 @@
 		111111111111111111111002 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		111111111111111111111003 /* DemoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoViewController.swift; sourceTree = "<group>"; };
 		111111111111111111111004 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		111111111111111111111009 /* XDButtonDemoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XDButtonDemoViewController.swift; sourceTree = "<group>"; };
 		111111111111111111111005 /* XDDesignKitDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = XDDesignKitDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		111111111111111111111009 /* XDButtonDemoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XDButtonDemoViewController.swift; sourceTree = "<group>"; };
+		C035C40E300F961B00F9B493 /* XDAlertDemoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XDAlertDemoViewController.swift; sourceTree = "<group>"; };
 		222222222222222222222001 /* XDDesignKitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = XDDesignKitTests.swift; path = ../../Tests/XDDesignKitTests/XDDesignKitTests.swift; sourceTree = SOURCE_ROOT; };
 		222222222222222222222002 /* XDDesignKitDemoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = XDDesignKitDemoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -32,7 +34,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				111111111111111111111104 /* XDDesignKit in Frameworks */,
+				C035C40C300F961B00F9B493 /* XDDesignKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -40,7 +42,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				222222222222222222222102 /* XDDesignKit in Frameworks */,
+				C035C40D300F961B00F9B493 /* XDDesignKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -63,6 +65,7 @@
 				111111111111111111111002 /* SceneDelegate.swift */,
 				111111111111111111111003 /* DemoViewController.swift */,
 				111111111111111111111009 /* XDButtonDemoViewController.swift */,
+				C035C40E300F961B00F9B493 /* XDAlertDemoViewController.swift */,
 				111111111111111111111004 /* Info.plist */,
 			);
 			path = XDDesignKitDemo;
@@ -102,7 +105,7 @@
 			);
 			name = XDDesignKitDemo;
 			packageProductDependencies = (
-				111111111111111111111008 /* XDDesignKit */,
+				C035C40B300F961B00F9B493 /* XDDesignKit */,
 			);
 			productName = XDDesignKitDemo;
 			productReference = 111111111111111111111005 /* XDDesignKitDemo.app */;
@@ -122,7 +125,7 @@
 			);
 			name = XDDesignKitDemoTests;
 			packageProductDependencies = (
-				111111111111111111111008 /* XDDesignKit */,
+				C035C40B300F961B00F9B493 /* XDDesignKit */,
 			);
 			productName = XDDesignKitDemoTests;
 			productReference = 222222222222222222222002 /* XDDesignKitDemoTests.xctest */;
@@ -156,7 +159,7 @@
 			);
 			mainGroup = 111111111111111111111010;
 			packageReferences = (
-				111111111111111111111007 /* XCLocalSwiftPackageReference "../.." */,
+				C035C40A300F961B00F9B493 /* XCLocalSwiftPackageReference "../../../XDDesignKit" */,
 			);
 			productRefGroup = 111111111111111111111012 /* Products */;
 			projectDirPath = "";
@@ -194,6 +197,7 @@
 				111111111111111111111102 /* SceneDelegate.swift in Sources */,
 				111111111111111111111103 /* DemoViewController.swift in Sources */,
 				111111111111111111111109 /* XDButtonDemoViewController.swift in Sources */,
+				111111111111111111111110 /* XDAlertDemoViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -444,16 +448,16 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		111111111111111111111007 /* XCLocalSwiftPackageReference "../.." */ = {
+		C035C40A300F961B00F9B493 /* XCLocalSwiftPackageReference "../../../XDDesignKit" */ = {
 			isa = XCLocalSwiftPackageReference;
-			relativePath = ../..;
+			relativePath = ../../../XDDesignKit;
 		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		111111111111111111111008 /* XDDesignKit */ = {
+		C035C40B300F961B00F9B493 /* XDDesignKit */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 111111111111111111111007 /* XCLocalSwiftPackageReference "../.." */;
+			package = C035C40A300F961B00F9B493 /* XCLocalSwiftPackageReference "../../../XDDesignKit" */;
 			productName = XDDesignKit;
 		};
 /* End XCSwiftPackageProductDependency section */

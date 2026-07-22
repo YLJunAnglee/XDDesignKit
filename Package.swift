@@ -18,6 +18,7 @@ let package = Package(
             name: "XDDesignKit",
             exclude: [
                 "Components/Button/DESIGN.md",
+                "Components/Alert/DESIGN.md",
                 "Theme/TYPOGRAPHY.md"
             ],
             resources: [

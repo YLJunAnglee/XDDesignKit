@@ -1,12 +1,12 @@
 # XDDesignKit 项目说明
 
-更新时间：2026-07-19
+更新时间：2026-07-22
 
 ## 项目定位
 
 XDDesignKit 是面向 UIKit、最低支持 iOS 14 的 Swift Package 组件库。目前暂不接入主项目，先通过独立 Demo 和测试稳定 API。
 
-当前阶段：**内核稳定 Alpha，`XDButton` 已完成首轮通用化，字体基础已为 `XDLabel` 准备完成；可以继续用不同类型组件验证内核，但尚未达到完整组件库或 1.0 发布标准。**
+当前阶段：**内核稳定 Alpha，`XDButton` 已完成首轮通用化；`XDAlert 0.5.0` 已完成首轮标准能力、Figma 样式校准、组件资源、Theme、Scene 协调器、长内容和键盘适配，并通过专项测试与 Demo 构建。组件库尚未达到 1.0 发布标准。**
 
 ## 架构结论
 
@@ -32,22 +32,23 @@ XDThemeable UIKit Component
 | Swift 6 并发 | 90% | 严格并发检查已通过 |
 | API 演进能力 | 80% | 已建立规则，仍需真实业务验证 |
 | 测试与工程化 | 75% | 有测试、Demo、脚本和 CI，缺视觉回归测试 |
-| 组件完整度 | 20% | Button 已形成可复用基线，其他基础组件尚待建设 |
-| 整体组件库 | 43% | 内核稳定，首个基础组件完成通用化 |
+| 组件完整度 | 35% | Button 已形成可复用基线，Alert 0.5.0 首轮能力已完成，其他基础组件尚待建设 |
+| 整体组件库 | 50% | 内核稳定，Button 完成通用化，Alert 已完成首轮实现和专项验收 |
 
 结论：大方向可以冻结。接下来应使用不同类型的组件验证内核，不再无目标地继续堆基础设施。
 
 ## 当前架构评价
 
-评价口径需要分开：**“设计和实现质量”不等于“组件库完成度”**。当前内核和已实现组件的质量较高，但整体完成度仍为 43%，不应因局部高分误判为已达 1.0。
+评价口径需要分开：**“设计和实现质量”不等于“组件库完成度”**。当前内核和已实现组件的质量较高，但整体完成度仍为 50%，不应因局部高分误判为已达 1.0。
 
 | 评价项 | 当前评分 | 结论 |
 |---|---:|---|
 | 整体架构质量 | 9.0/10 | Token 到 Component 的分层、主题作用域和扩展边界清晰 |
 | 字体架构 | 9.2/10 | 语义 Token 为主、固定字号为显式逃生口，具备安全回退和主题能力 |
 | `XDButton` | 9.3/10 | 视觉、状态、布局、RTL、无障碍和回归测试已形成较完整基线 |
+| `XDAlert` | 8.8/10 | 标准能力、Figma 样式、资源、交互和公开对齐 API 已完成专项验收 |
 | API 与扩展性 | 8.8/10 | 公共边界可扩展且保持克制，仍需真实业务验证命名和调用成本 |
-| 测试与工程质量 | 9.0/10 | 严格并发、警告即错误、Demo 和 43 项测试通过 |
+| 测试与工程质量 | 9.0/10 | Package 行为测试和 Demo 构建已覆盖 Alert 新增能力，仍缺 Snapshot 回归 |
 | 生产成熟度 | 7.8/10 | 缺少多类型组件、Snapshot 和真实页面接入验证 |
 
 ### 已验收的实现结果
@@ -55,7 +56,19 @@ XDThemeable UIKit Component
 - 基础分层、主题继承、多 Scene Context、Trait 解析和严格并发边界已通过构建与行为测试。
 - `XDButton 0.3.2` 的主要功能和连续交互布局问题已验收，当前无已知功能故障。
 - `0.4.0` 字体基础已实现 PingFang SC 三字重、系统回退、fixed/dynamic、自定义 Token、非法配置校验和未知 Token 安全回退。
-- 当前完整验证基线为 43 tests、0 failures，Package 和 Demo 构建通过。
+- `0.5.0` 新增 `XDAlert`、`XDAlertTextAlignment`、组件内复选框资源及独立 Demo；新增 API 保持默认参数兼容，已覆盖自适应/强制对齐、Figma 尺寸、资源读取和点击热区测试。
+- 当前完整验证基线为 56 tests、0 failures；严格并发检查、警告即错误构建和 Demo 构建均已通过。
+
+### XDAlert 当前停点
+
+- 已实现统一 `XDAlert.show` API，业务方无需为每个弹窗创建 `UIViewController`。
+- 已覆盖单/双按钮、文字操作、复选框、输入框、插画、关闭按钮和蒙层关闭。
+- 已实现 Theme 实时刷新、长内容滚动、键盘避让、Dynamic Type、Reduce Motion 和基础 VoiceOver。
+- 已实现 scene-owned Overlay Coordinator，支持排队、取消、关闭后续播和 UIKit 展示失败恢复。
+- 无 Scene、Presenter 失效和展示被拒绝时，通过 `XDAlertHandle.presentationFailure` 返回失败原因。
+- Demo 已增加独立 `XDAlert 体验` 页面；Alert 专项设计与验收清单见 `Sources/XDDesignKit/Components/Alert/DESIGN.md`。
+- 默认标题和正文使用自适应对齐，业务可分别指定 `.adaptive`、`.leading` 或 `.center`。
+- 复选框图片由组件资源包提供，视觉行高与至少 44pt 的点击热区解耦；图标、文字和行内空白均可点击。
 
 ### 待验证问题清单
 
@@ -64,6 +77,7 @@ XDThemeable UIKit Component
 | 优先级 | 待验证项 | 处理阶段 |
 |---|---|---|
 | P1 | Theme/Trait 变化后 Label 的字体、行高、字间距和 Attributed Text 如何统一刷新 | `XDLabel` |
+| P1 | Alert 长公告/横屏/超大字体、键盘、中文输入、VoiceOver、Theme 切换和连续弹窗完整人工矩阵 | 0.5.x 持续验收 |
 | P1 | 超大 Dynamic Type 下的比例行高、多行、截断和布局表现 | `XDLabel` Demo 与测试 |
 | P1 | 缺少 Snapshot 视觉回归，行为测试无法覆盖像素级差异 | Snapshot 阶段 |
 | P2 | API 在真实业务页面中的调用成本、主题隔离和迁移体验 | 低风险页面接入 |
@@ -144,22 +158,22 @@ XDThemeable UIKit Component
 bash Scripts/verify.sh
 ```
 
-当前验证基线：43 tests，0 failures；Package 严格并发与警告即错误通过；Demo 构建和共享 XCTest Scheme 通过。
+当前 `0.5.0` 验证基线已通过 `bash Scripts/verify.sh` 刷新：56 tests、0 failures，严格并发检查、警告即错误构建和 Demo 构建均通过。
 
 ## 下一阶段方向
 
 下次继续时按以下顺序推进：
 
-1. 实现 `XDLabel`：验证字体、行高、Attributed Text 和超大 Dynamic Type。
-2. 实现 `XDTag`：验证小尺寸组件、点击区域和状态表。
-3. 实现 `XDTextField`：验证 focused/error/disabled 状态优先级。
-4. 引入 Snapshot 视觉回归测试。
-5. 接入一个低风险真实页面，验证调用体验后再收敛 1.0 API。
+1. 完成 `XDAlert 0.5.x` 剩余的 VoiceOver、键盘、横屏和连续弹窗人工矩阵，并将问题回写 Alert `DESIGN.md`。
+2. 实现 `XDLabel`，验证字体、行高、Attributed Text 和超大 Dynamic Type。
+3. 使用真实业务页面验证 `XDAlert` 和 `XDButton` 的调用成本及主题隔离。
+4. 实现 `XDTag` 和 `XDTextField`，继续验证小尺寸点击区域及状态优先级。
+5. 引入 Snapshot 视觉回归，并接入一个低风险真实页面后再收敛 1.0 API。
 
 两个按需建设的架构入口：
 
 - 数字角标进入多个组件前，实现独立 `XDBadgeView` 和通用挂载边界。
-- Toast/Sheet/Alert 开始前，实现 scene-owned Overlay Presenter。
+- Toast/Sheet 开始前，复用或扩展现有 scene-owned Alert Overlay Coordinator。
 
 ## 下次继续前先读
 
@@ -173,9 +187,12 @@ bash Scripts/verify.sh
 - `Sources/XDDesignKit/Theme/XDThemeResolver.swift`。
 - `Sources/XDDesignKit/Components/Button/XDButton.swift`。
 - `Sources/XDDesignKit/Components/Button/XDButtonTheme.swift`。
+- `Sources/XDDesignKit/Components/Alert/DESIGN.md`。
+- `Sources/XDDesignKit/Components/Alert/XDAlert.swift`。
+- `Sources/XDDesignKit/Components/Alert/XDAlertOverlayCoordinator.swift`。
 - `Examples/XDDesignKitDemo/XDDesignKitDemo/DemoViewController.swift`。
 
-当前默认续接点：**在写代码前先讨论 `XDLabel` 的设计边界，然后用它验证字体、行高、Attributed Text 和超大 Dynamic Type。**
+当前默认续接点：**先完成 XDAlert 0.5.x 的剩余人工矩阵，同时开始 XDLabel 设计；真实业务接入后再收敛 1.0 API。**
 
 ## 文档维护规则
 

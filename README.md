@@ -96,6 +96,46 @@ Storyboard/Nib 创建的 Button 可在 scene 确定后调用：
 button.bindThemeContext(context)
 ```
 
+## Alert
+
+`XDAlert` 是由当前 UIKit 页面显式展示的居中弹窗；它不会猜测全局窗口，因此可安全用于多 Scene 应用。所有视觉值都来自传入的 `XDThemeContext`。
+
+```swift
+XDAlert.show(
+    on: self,
+    title: "确定删除分类吗？",
+    message: "删除分类后，该分类下的背书文档将变成无分类",
+    accessory: .checkbox(title: "同时删除分类下的背书文档"),
+    actions: [
+        .cancel("取消"),
+        .primary("删除") { context in
+            print(context.checkboxIsSelected == true)
+        }
+    ]
+)
+```
+
+输入框使用 `.textField(...)`。异步操作可把 Action 的 `automaticallyDismisses` 设为 `false`，再通过回调中的 `context.setLoading(_:)` 与 `context.dismiss()` 控制状态。
+
+标题和正文默认使用 `.adaptive`：短文本居中，超过单行可用宽度后按自然阅读方向对齐。业务需要固定表现时，可以分别指定 `.leading` 或 `.center`：
+
+```swift
+XDAlert.show(
+    on: self,
+    configuration: .init(
+        title: "提示",
+        message: "这是一段需要固定对齐方式的说明文字。",
+        actions: [.primary("知道了")],
+        titleAlignment: .center,
+        messageAlignment: .leading
+    )
+)
+```
+
+复选框图标由组件资源包提供，业务项目无需重复导入图片。复选框视觉高度遵循设计规格，实际点击热区仍保持至少 44pt。
+
+`presenter` 必须已经关联到 `UIWindowScene`。若页面尚未进入窗口，Alert 不会绕过 Scene 协调器展示，可通过返回的 `handle.presentationFailure` 获取失败原因。
+
 ## 自定义主题
 
 主题必须显式声明基主题：
@@ -145,4 +185,4 @@ bash Scripts/verify.sh
 
 该脚本执行严格并发构建、测试和 Demo 构建。
 
-Demo 首页的“打开 XDButton 独立体验页”可进入按钮交互测试界面，实时切换样式、状态、图标位置、RTL、主题和明暗模式。
+Demo 首页提供 `XDButton` 和 `XDAlert` 独立体验页。Alert 页面覆盖标准形态、附加控件、插画、关闭方式，以及默认自适应和强制文本对齐示例。
