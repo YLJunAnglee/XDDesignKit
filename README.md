@@ -2,6 +2,35 @@
 
 UIKit 组件库，最低支持 iOS 14，使用 Swift Package Manager。当前处于稳定内核 Alpha 阶段。
 
+## 安装
+
+在 Xcode 中选择 **File → Add Package Dependencies**，输入仓库地址：
+
+```text
+https://github.com/YLJunAnglee/XDDesignKit.git
+```
+
+版本规则建议选择 **Up to Next Minor Version**，起始版本填写 `0.5.0`。这样业务项目会自动获取 `0.5.x` 的兼容修复，但不会自动升级到可能包含不兼容调整的 `0.6.0`。
+
+随后将 `XDDesignKit` Library 添加到需要使用组件的 App Target，并在代码中导入：
+
+```swift
+import XDDesignKit
+```
+
+如果项目通过 `Package.swift` 管理依赖：
+
+```swift
+dependencies: [
+    .package(
+        url: "https://github.com/YLJunAnglee/XDDesignKit.git",
+        .upToNextMinor(from: "0.5.0")
+    )
+]
+```
+
+组件自带的图片资源会随 Swift Package 一起分发，业务项目不需要重复导入 Alert 复选框等组件资源。
+
 ## 架构
 
 ```text
