@@ -84,6 +84,7 @@ public extension XDThemeable where Self: UIView {
         return previousTraitCollection.hasDifferentColorAppearance(comparedTo: traitCollection)
             || previousTraitCollection.preferredContentSizeCategory != traitCollection.preferredContentSizeCategory
             || previousTraitCollection.layoutDirection != traitCollection.layoutDirection
+            || previousTraitCollection.displayScale != traitCollection.displayScale
     }
 }
 
@@ -100,5 +101,6 @@ public extension XDThemeable where Self: UIViewController {
         return previousTraitCollection.hasDifferentColorAppearance(comparedTo: traitCollection)
             || previousTraitCollection.preferredContentSizeCategory != traitCollection.preferredContentSizeCategory
             || previousTraitCollection.layoutDirection != traitCollection.layoutDirection
+            || previousTraitCollection.displayScale != traitCollection.displayScale
     }
 }

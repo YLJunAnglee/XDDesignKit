@@ -660,7 +660,17 @@ final class XDDesignKitTests: XCTestCase {
         XCTAssertEqual(outline.backgroundColor?.hexString, "#FFFFFF")
         XCTAssertEqual(outline.currentTitleColor.hexString, "#222222")
         XCTAssertEqual(UIColor(cgColor: outline.layer.borderColor!).hexString, "#222222")
-        XCTAssertEqual(outline.layer.borderWidth, 0.5, accuracy: 0.001)
+        XCTAssertEqual(
+            context.currentTheme.components.button
+                .appearance(for: .outline, state: .normal)
+                .borderWidthToken,
+            .hairline
+        )
+        XCTAssertEqual(
+            outline.layer.borderWidth,
+            1 / max(outline.traitCollection.displayScale, 1),
+            accuracy: 0.001
+        )
         XCTAssertEqual(outline.intrinsicContentSize.height, 48, accuracy: 0.5)
         XCTAssertEqual(outline.layer.cornerRadius, 8, accuracy: 0.001)
         XCTAssertEqual(outline.titleLabel!.font.pointSize, 16, accuracy: 0.001)

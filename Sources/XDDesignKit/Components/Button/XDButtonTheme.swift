@@ -215,9 +215,9 @@ public extension XDButtonTheme {
             disabled: .init(backgroundToken: .backgroundDisabled, titleToken: .textTertiary, borderToken: .borderPrimary)
         )
         let outline = XDButtonStyleAppearance(
-            normal: .init(backgroundToken: fixedLight, titleToken: fixedDark, borderToken: fixedDark, borderWidthToken: .thin),
-            highlighted: .init(backgroundToken: fixedLightHighlighted, titleToken: fixedDark, borderToken: fixedDark, borderWidthToken: .thin),
-            disabled: .init(backgroundToken: fixedDisabledBackground, titleToken: fixedDisabledForeground, borderToken: fixedDisabledBorder, borderWidthToken: .thin)
+            normal: .init(backgroundToken: fixedLight, titleToken: fixedDark, borderToken: fixedDark, borderWidthToken: .hairline),
+            highlighted: .init(backgroundToken: fixedLightHighlighted, titleToken: fixedDark, borderToken: fixedDark, borderWidthToken: .hairline),
+            disabled: .init(backgroundToken: fixedDisabledBackground, titleToken: fixedDisabledForeground, borderToken: fixedDisabledBorder, borderWidthToken: .hairline)
         )
         let text = XDButtonStyleAppearance(
             normal: .init(backgroundToken: nil, titleToken: .brandPrimary),
