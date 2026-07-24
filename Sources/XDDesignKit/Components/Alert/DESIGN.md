@@ -12,7 +12,10 @@ card, transition, theme binding, accessibility focus, and dismissal lifecycle.
 - Callers may independently set title and body alignment to adaptive, leading,
   or centered through `XDAlertConfiguration`.
 - Optional illustration and supporting caption.
-- Optional bounded accessory: checkbox or text field.
+- Optional bounded accessory: checkbox or text input. Text input defaults to the
+  source-compatible single-line field. Multiline input grows with its content
+  and accepts one exclusive upper-bound policy: visible line count, absolute
+  height, or unlimited growth within the alert shell.
 - Optional actions. Filled, outlined, and text actions reuse `XDButton` styles.
 
 ## Theme contract
@@ -33,6 +36,23 @@ Selected and unselected checkbox images ship in the Swift Package resource
 bundle. The visual row follows the 24-point design size, while hit testing uses
 the theme's independent 44-point minimum target. The full row, including its
 trailing empty area, toggles the control.
+
+## Text input contract
+
+Single-line and multiline inputs share configuration, theming, committed-text
+length enforcement, action-context output, focus, and keyboard avoidance.
+New call sites should use the semantic `.textInput(...)` accessory factory;
+`.textField(...)` remains as a source-compatible alias.
+Single-line input remains backed by `UITextField`, including secure entry.
+Multiline input is backed by `UITextView`; it grows from the theme's input
+height and starts internal scrolling only after its configured line or height
+limit. Unlimited growth delegates screen-height overflow to the alert shell's
+scroll view. Secure multiline input is intentionally rejected because UIKit
+does not provide native secure behavior for `UITextView`.
+
+When the maximum committed character length or configured multiline height is
+reached, `onLimitReached` emits a single transition event. Removing content
+below the limit resets that transition, allowing a later reach to emit again.
 
 ## Extension boundary
 

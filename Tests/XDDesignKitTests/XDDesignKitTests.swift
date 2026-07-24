@@ -99,6 +99,8 @@ final class XDDesignKitTests: XCTestCase {
             contentHorizontalInset: 28,
             sectionContentInset: 12,
             inputHeight: 52,
+            inputHorizontalInset: 18,
+            inputVerticalInset: 14,
             closeButtonSize: 48,
             checkboxTitleSpacing: 6,
             checkboxMinimumHeight: 28,
@@ -118,6 +120,8 @@ final class XDDesignKitTests: XCTestCase {
         XCTAssertEqual(context.currentTheme.components.alert.contentHorizontalInset, 28, accuracy: 0.001)
         XCTAssertEqual(context.currentTheme.components.alert.sectionContentInset, 12, accuracy: 0.001)
         XCTAssertEqual(context.currentTheme.components.alert.inputHeight, 52, accuracy: 0.001)
+        XCTAssertEqual(context.currentTheme.components.alert.inputHorizontalInset, 18, accuracy: 0.001)
+        XCTAssertEqual(context.currentTheme.components.alert.inputVerticalInset, 14, accuracy: 0.001)
         XCTAssertEqual(context.currentTheme.components.alert.closeButtonSize, 48, accuracy: 0.001)
         XCTAssertEqual(context.currentTheme.components.alert.checkboxTitleSpacing, 6, accuracy: 0.001)
         XCTAssertEqual(context.currentTheme.components.alert.checkboxMinimumHeight, 28, accuracy: 0.001)
@@ -259,6 +263,148 @@ final class XDDesignKitTests: XCTestCase {
         XCTAssertEqual(field.text, "背书📚")
     }
 
+    func testAlertMultilineTextLengthUsesComposedCharacters() throws {
+        let context = try XDThemeContext(initialTheme: .defaultTheme)
+        let input = XDAlertTextInputView(
+            configuration: .init(
+                text: "背书📚学习",
+                maximumLength: 3,
+                layout: .multiline(maximum: .lines(4))
+            ),
+            themeContext: context
+        )
+
+        XCTAssertEqual(input.text, "背书📚")
+    }
+
+    func testAlertMultilineInputSupportsExclusiveHeightLimitStrategies() {
+        let lineLimited = XDAlertTextFieldConfiguration(
+            layout: .multiline(maximum: .lines(6))
+        )
+        let heightLimited = XDAlertTextFieldConfiguration(
+            layout: .multiline(maximum: .height(160))
+        )
+        let unlimited = XDAlertTextFieldConfiguration(
+            layout: .multiline(maximum: .unlimited)
+        )
+
+        XCTAssertEqual(lineLimited.layout, .multiline(maximum: .lines(6)))
+        XCTAssertEqual(heightLimited.layout, .multiline(maximum: .height(160)))
+        XCTAssertEqual(unlimited.layout, .multiline(maximum: .unlimited))
+    }
+
+    func testAlertMultilineInputGrowsAndScrollsAtLineLimit() throws {
+        let context = try XDThemeContext(initialTheme: .defaultTheme)
+        let input = XDAlertTextInputView(
+            configuration: .init(
+                text: "第一行\n第二行\n第三行\n第四行",
+                layout: .multiline(maximum: .lines(2))
+            ),
+            themeContext: context
+        )
+
+        layoutAlertTextInput(input)
+
+        XCTAssertEqual(input.bounds.height, 72, accuracy: 0.5)
+        XCTAssertTrue(try XCTUnwrap(input.subviews.first { $0 is UITextView } as? UITextView).isScrollEnabled)
+    }
+
+    func testAlertMultilineInputCanUseAbsoluteHeightLimit() throws {
+        let context = try XDThemeContext(initialTheme: .defaultTheme)
+        let input = XDAlertTextInputView(
+            configuration: .init(
+                text: "第一行\n第二行\n第三行\n第四行\n第五行",
+                layout: .multiline(maximum: .height(96))
+            ),
+            themeContext: context
+        )
+
+        layoutAlertTextInput(input)
+
+        XCTAssertEqual(input.bounds.height, 96, accuracy: 0.5)
+        XCTAssertTrue(try XCTUnwrap(input.subviews.first { $0 is UITextView } as? UITextView).isScrollEnabled)
+    }
+
+    func testAlertUnlimitedMultilineInputDelegatesOverflowToAlertShell() throws {
+        let context = try XDThemeContext(initialTheme: .defaultTheme)
+        let input = XDAlertTextInputView(
+            configuration: .init(
+                text: "一\n二\n三\n四\n五\n六",
+                layout: .multiline(maximum: .unlimited)
+            ),
+            themeContext: context
+        )
+
+        layoutAlertTextInput(input)
+
+        XCTAssertGreaterThan(input.bounds.height, 120)
+        XCTAssertFalse(try XCTUnwrap(input.subviews.first { $0 is UITextView } as? UITextView).isScrollEnabled)
+    }
+
+    func testAlertMultilineInputShrinksAfterContentIsDeleted() throws {
+        let context = try XDThemeContext(initialTheme: .defaultTheme)
+        let input = XDAlertTextInputView(
+            configuration: .init(
+                text: "一\n二\n三",
+                layout: .multiline(maximum: .lines(2))
+            ),
+            themeContext: context
+        )
+        layoutAlertTextInput(input)
+        let textView = try XCTUnwrap(input.subviews.first { $0 is UITextView } as? UITextView)
+        XCTAssertTrue(textView.isScrollEnabled)
+
+        textView.text = "只剩一行"
+        input.textViewDidChange(textView)
+        layoutAlertTextInput(input)
+
+        XCTAssertEqual(input.bounds.height, XDAlertTheme.default.inputHeight, accuracy: 0.5)
+        XCTAssertFalse(textView.isScrollEnabled)
+    }
+
+    func testAlertInputLimitEventsFireOnTransitionAndCanFireAgainAfterReset() throws {
+        let context = try XDThemeContext(initialTheme: .defaultTheme)
+        var limits: [XDAlertTextInputLimit] = []
+        let input = XDAlertTextInputView(
+            configuration: .init(
+                layout: .multiline(maximum: .lines(2)),
+                onLimitReached: { limits.append($0) }
+            ),
+            themeContext: context
+        )
+        let textView = try XCTUnwrap(input.subviews.first { $0 is UITextView } as? UITextView)
+        layoutAlertTextInput(input)
+
+        textView.text = "第一行\n第二行"
+        input.textViewDidChange(textView)
+        input.textViewDidChange(textView)
+        XCTAssertEqual(limits, [.maximumHeight])
+
+        textView.text = "第一行"
+        input.textViewDidChange(textView)
+        textView.text = "第一行\n第二行"
+        input.textViewDidChange(textView)
+        XCTAssertEqual(limits, [.maximumHeight, .maximumHeight])
+    }
+
+    func testAlertMaximumLengthLimitEventIsExposedForSingleLineInput() throws {
+        let context = try XDThemeContext(initialTheme: .defaultTheme)
+        var limits: [XDAlertTextInputLimit] = []
+        let input = XDAlertTextInputView(
+            configuration: .init(
+                maximumLength: 3,
+                onLimitReached: { limits.append($0) }
+            ),
+            themeContext: context
+        )
+        let textField = try XCTUnwrap(input.subviews.first { $0 is UITextField } as? UITextField)
+
+        textField.text = "abc"
+        input.handleTextFieldChange(textField)
+        input.handleTextFieldChange(textField)
+        XCTAssertEqual(limits, [.maximumLength])
+    }
+
     func testAlertStandardConfigurationAcceptsSupportedAccessories() {
         let checkbox = XDAlertConfiguration(
             title: "删除分类",
@@ -382,6 +528,19 @@ final class XDDesignKitTests: XCTestCase {
         )
         contentView.frame = CGRect(origin: .zero, size: fittedSize)
         contentView.layoutIfNeeded()
+    }
+
+    private func layoutAlertTextInput(_ input: XDAlertTextInputView) {
+        input.frame = CGRect(x: 0, y: 0, width: 240, height: XDAlertTheme.default.inputHeight)
+        input.setNeedsLayout()
+        input.layoutIfNeeded()
+        let size = input.systemLayoutSizeFitting(
+            CGSize(width: 240, height: UIView.layoutFittingCompressedSize.height),
+            withHorizontalFittingPriority: .required,
+            verticalFittingPriority: .fittingSizeLevel
+        )
+        input.frame.size = size
+        input.layoutIfNeeded()
     }
 
     func testPingFangFontFamilyResolvesProjectWeightsAndFallsBackSafely() {

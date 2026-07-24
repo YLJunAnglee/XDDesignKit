@@ -7,6 +7,7 @@ protocol XDAlertContentRendering: AnyObject {
     var checkboxIsSelected: Bool? { get }
     var textFieldText: String? { get }
     var primaryInputRect: CGRect? { get }
+    var onContentSizeChange: (() -> Void)? { get set }
     func applyTheme()
     func setActionLoading(_ isLoading: Bool, at index: Int)
     func focusPrimaryInput()
@@ -19,6 +20,10 @@ final class XDAlertStandardContentRenderer: XDAlertContentRendering {
     var checkboxIsSelected: Bool? { contentView.checkboxIsSelected }
     var textFieldText: String? { contentView.textFieldText }
     var primaryInputRect: CGRect? { contentView.primaryInputRect }
+    var onContentSizeChange: (() -> Void)? {
+        get { contentView.onContentSizeChange }
+        set { contentView.onContentSizeChange = newValue }
+    }
 
     init(
         configuration: XDAlertConfiguration,

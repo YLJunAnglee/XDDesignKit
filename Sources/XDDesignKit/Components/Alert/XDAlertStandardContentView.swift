@@ -18,9 +18,7 @@ final class XDAlertStandardContentView: UIView, XDThemeable {
     private var actionStack: UIStackView?
     private var actionStackUsesHorizontalLayout = false
     private var checkboxView: XDAlertCheckboxView?
-    private var textField: UITextField?
-    private var textFieldLengthController: XDAlertTextFieldLengthController?
-    private var inputHeightConstraint: NSLayoutConstraint?
+    private var textInputView: XDAlertTextInputView?
     private var closeButton: UIButton?
     private var closeWidthConstraint: NSLayoutConstraint?
     private var closeHeightConstraint: NSLayoutConstraint?
@@ -28,12 +26,13 @@ final class XDAlertStandardContentView: UIView, XDThemeable {
     private var illustrationWidthConstraint: NSLayoutConstraint?
     private var illustrationHeightConstraint: NSLayoutConstraint?
     private let onClose: () -> Void
+    var onContentSizeChange: (() -> Void)?
 
     var checkboxIsSelected: Bool? { checkboxView?.isSelected }
-    var textFieldText: String? { textField?.text }
+    var textFieldText: String? { textInputView?.text }
     var primaryInputRect: CGRect? {
-        guard let textField else { return nil }
-        return textField.convert(textField.bounds, to: self)
+        guard let textInputView else { return nil }
+        return textInputView.convert(textInputView.primaryInputRect, to: self)
     }
 
     init(
@@ -55,7 +54,7 @@ final class XDAlertStandardContentView: UIView, XDThemeable {
     required init?(coder: NSCoder) { nil }
 
     func focusPrimaryInput() {
-        textField?.becomeFirstResponder()
+        textInputView?.focus()
     }
 
     private func setup() {
@@ -194,22 +193,15 @@ final class XDAlertStandardContentView: UIView, XDThemeable {
             checkboxView = checkbox
             rootStack.addArrangedSubview(checkbox)
         case let .textField(configuration):
-            let field = UITextField()
-            field.text = configuration.text
-            field.placeholder = configuration.placeholder
-            field.keyboardType = configuration.keyboardType
-            field.isSecureTextEntry = configuration.isSecureTextEntry
-            field.borderStyle = .none
-            field.layer.masksToBounds = true
-            field.accessibilityLabel = configuration.placeholder
-            let lengthController = XDAlertTextFieldLengthController(maximumLength: configuration.maximumLength)
-            textFieldLengthController = lengthController
-            field.addTarget(lengthController, action: #selector(XDAlertTextFieldLengthController.textDidChange(_:)), for: .editingChanged)
-            lengthController.enforceMaximumLength(in: field)
-            textField = field
-            inputHeightConstraint = field.heightAnchor.constraint(equalToConstant: 1)
-            inputHeightConstraint?.isActive = true
-            let container = XDAlertInsetContainer(contentView: field)
+            let inputView = XDAlertTextInputView(
+                configuration: configuration,
+                themeContext: xdThemeContext
+            )
+            inputView.onHeightChange = { [weak self] in
+                self?.onContentSizeChange?()
+            }
+            textInputView = inputView
+            let container = XDAlertInsetContainer(contentView: inputView)
             textFieldContainer = container
             rootStack.addArrangedSubview(container)
         }
@@ -264,29 +256,7 @@ final class XDAlertStandardContentView: UIView, XDThemeable {
             right: sectionInset
         )
 
-        if let textField {
-            let inputFont = theme.messageStyle.resolved(
-                compatibleWith: traitCollection,
-                fontFamily: resolver.theme.metrics.fontFamily
-            )
-            textField.font = inputFont
-            textField.textColor = theme.color(for: theme.inputTextToken, resolver: resolver)
-            textField.backgroundColor = theme.color(for: theme.inputBackgroundToken, resolver: resolver)
-            textField.layer.cornerRadius = resolver.radius(.md)
-            textField.leftView = spacer(width: theme.contentSpacing)
-            textField.leftViewMode = .always
-            textField.rightView = spacer(width: theme.contentSpacing)
-            textField.rightViewMode = .always
-            let placeholder = textField.placeholder ?? ""
-            textField.attributedPlaceholder = NSAttributedString(
-                string: placeholder,
-                attributes: [
-                    .font: inputFont,
-                    .foregroundColor: theme.color(for: theme.inputPlaceholderToken, resolver: resolver)
-                ]
-            )
-            inputHeightConstraint?.constant = theme.inputHeight
-        }
+        textInputView?.xdApplyTheme()
 
         closeButton?.tintColor = theme.color(for: theme.titleToken, resolver: resolver)
         closeWidthConstraint?.constant = theme.closeButtonSize
@@ -362,13 +332,6 @@ final class XDAlertStandardContentView: UIView, XDThemeable {
         case .leading: return .natural
         case .center: return .center
         }
-    }
-
-    private func spacer(width: CGFloat) -> UIView {
-        let view = UIView(frame: CGRect(x: 0, y: 0, width: width, height: 1))
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.widthAnchor.constraint(equalToConstant: width).isActive = true
-        return view
     }
 
     @objc private func handleClose() { onClose() }
@@ -603,11 +566,13 @@ final class XDAlertTextFieldLengthController: NSObject {
         guard let maximumLength,
               textField.markedTextRange == nil,
               let text = textField.text,
-              text.count > maximumLength else {
+              let truncated = XDAlertTextLengthLimiter.truncatedText(
+                text,
+                maximumLength: maximumLength
+              ) else {
             return
         }
-        let endIndex = text.index(text.startIndex, offsetBy: maximumLength)
-        textField.text = String(text[..<endIndex])
+        textField.text = truncated
         let endPosition = textField.endOfDocument
         textField.selectedTextRange = textField.textRange(from: endPosition, to: endPosition)
     }

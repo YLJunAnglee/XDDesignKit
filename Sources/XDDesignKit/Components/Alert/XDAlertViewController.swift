@@ -37,6 +37,10 @@ final class XDAlertViewController: UIViewController, XDThemeable {
             onAction: { [weak self] index in self?.performAction(at: index) },
             onClose: { [weak self] in self?.dismissAlert(animated: true) }
         )
+        self.renderer.onContentSizeChange = { [weak self] in
+            guard let self, self.isViewLoaded else { return }
+            self.view.setNeedsLayout()
+        }
         modalPresentationStyle = .overFullScreen
         modalPresentationCapturesStatusBarAppearance = false
     }

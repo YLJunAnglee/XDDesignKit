@@ -64,7 +64,8 @@ final class XDAlertDemoViewController: UIViewController, XDThemeable {
             ("复选框 · 单按钮", .outline, { [weak self] in self?.showCheckboxSingleAction() }),
             ("复选框 · 双按钮", .outline, { [weak self] in self?.showCheckboxConfirmation() }),
             ("输入框 · 单按钮", .secondary, { [weak self] in self?.showTextFieldSingleAction() }),
-            ("输入框 · 双按钮", .secondary, { [weak self] in self?.showTextFieldConfirmation() })
+            ("输入框 · 双按钮", .secondary, { [weak self] in self?.showTextFieldConfirmation() }),
+            ("多行输入框 · 自动增高", .secondary, { [weak self] in self?.showGrowingTextInput() })
         ])
         addSection("插画与关闭方式", cases: [
             ("插画 · 单按钮", .primary, { [weak self] in self?.showIllustrationSingleAction() }),
@@ -137,6 +138,27 @@ final class XDAlertDemoViewController: UIViewController, XDThemeable {
 
     private func showTextFieldConfirmation() {
         show(title: "重命名分类", message: "新名称会同步展示在全部文档中。", accessory: .textField(placeholder: "请输入分类名称", text: "语文", maximumLength: 20), actions: [.cancel("取消"), .primary("保存")])
+    }
+
+    private func showGrowingTextInput() {
+        show(
+            title: "填写反馈",
+            message: "输入框会随内容自动增高，超过四行后可在输入框内滚动。",
+            accessory: .textInput(
+                placeholder: "请输入反馈内容",
+                maximumLength: 200,
+                layout: .multiline(maximum: .lines(4)),
+                onLimitReached: { limit in
+                    print("Alert 输入限制：\\(limit)")
+                }
+            ),
+            actions: [
+                .cancel("取消"),
+                .primary("提交") { context in
+                    print(context.textFieldText ?? "")
+                }
+            ]
+        )
     }
 
     private func showIllustrationSingleAction() {

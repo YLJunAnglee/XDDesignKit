@@ -29,6 +29,8 @@ public struct XDAlertTheme: Sendable {
     public let actionSpacing: CGFloat
     public let actionHorizontalSpacing: CGFloat
     public let inputHeight: CGFloat
+    public let inputHorizontalInset: CGFloat
+    public let inputVerticalInset: CGFloat
     public let illustrationMaximumSize: CGSize
     public let closeButtonSize: CGFloat
     public let checkboxIconSize: CGFloat
@@ -65,6 +67,8 @@ public struct XDAlertTheme: Sendable {
         actionSpacing: CGFloat,
         actionHorizontalSpacing: CGFloat,
         inputHeight: CGFloat,
+        inputHorizontalInset: CGFloat = 16,
+        inputVerticalInset: CGFloat = 12,
         illustrationMaximumSize: CGSize,
         closeButtonSize: CGFloat = 44,
         checkboxIconSize: CGFloat = 24,
@@ -100,6 +104,8 @@ public struct XDAlertTheme: Sendable {
         self.actionSpacing = actionSpacing
         self.actionHorizontalSpacing = actionHorizontalSpacing
         self.inputHeight = inputHeight
+        self.inputHorizontalInset = inputHorizontalInset
+        self.inputVerticalInset = inputVerticalInset
         self.illustrationMaximumSize = illustrationMaximumSize
         self.closeButtonSize = closeButtonSize
         self.checkboxIconSize = checkboxIconSize
@@ -129,6 +135,8 @@ public struct XDAlertTheme: Sendable {
         actionSpacing: CGFloat? = nil,
         actionHorizontalSpacing: CGFloat? = nil,
         inputHeight: CGFloat? = nil,
+        inputHorizontalInset: CGFloat? = nil,
+        inputVerticalInset: CGFloat? = nil,
         illustrationMaximumSize: CGSize? = nil,
         closeButtonSize: CGFloat? = nil,
         checkboxIconSize: CGFloat? = nil,
@@ -165,6 +173,8 @@ public struct XDAlertTheme: Sendable {
             actionSpacing: actionSpacing ?? self.actionSpacing,
             actionHorizontalSpacing: actionHorizontalSpacing ?? self.actionHorizontalSpacing,
             inputHeight: inputHeight ?? self.inputHeight,
+            inputHorizontalInset: inputHorizontalInset ?? self.inputHorizontalInset,
+            inputVerticalInset: inputVerticalInset ?? self.inputVerticalInset,
             illustrationMaximumSize: illustrationMaximumSize ?? self.illustrationMaximumSize,
             closeButtonSize: closeButtonSize ?? self.closeButtonSize,
             checkboxIconSize: checkboxIconSize ?? self.checkboxIconSize,
@@ -183,7 +193,8 @@ public struct XDAlertTheme: Sendable {
         let values = [
             cardMaximumWidth, screenHorizontalInset, screenVerticalInset,
             contentHorizontalInset, contentVerticalInset, sectionContentInset, contentSpacing,
-            actionSpacing, actionHorizontalSpacing, inputHeight,
+            actionSpacing, actionHorizontalSpacing, inputHeight, inputHorizontalInset,
+            inputVerticalInset,
             illustrationMaximumSize.width, illustrationMaximumSize.height,
             closeButtonSize, checkboxIconSize, checkboxTitleSpacing,
             checkboxMinimumHeight, checkboxMinimumHitTargetSize, presentationScale
@@ -247,6 +258,8 @@ public extension XDAlertTheme {
             actionSpacing: 10,
             actionHorizontalSpacing: 10,
             inputHeight: 48,
+            inputHorizontalInset: 16,
+            inputVerticalInset: 12,
             illustrationMaximumSize: CGSize(width: 112, height: 112),
             closeButtonSize: 44,
             checkboxIconSize: 24,

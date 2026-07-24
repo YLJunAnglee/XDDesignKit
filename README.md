@@ -10,7 +10,7 @@ UIKit 组件库，最低支持 iOS 14，使用 Swift Package Manager。当前处
 https://github.com/YLJunAnglee/XDDesignKit.git
 ```
 
-版本规则建议选择 **Up to Next Minor Version**，起始版本填写 `0.5.0`。这样业务项目会自动获取 `0.5.x` 的兼容修复，但不会自动升级到可能包含不兼容调整的 `0.6.0`。
+版本规则建议选择 **Up to Next Minor Version**，起始版本填写 `0.5.2`。这样业务项目会自动获取 `0.5.x` 的兼容修复，但不会自动升级到可能包含不兼容调整的 `0.6.0`。
 
 随后将 `XDDesignKit` Library 添加到需要使用组件的 App Target，并在代码中导入：
 
@@ -24,7 +24,7 @@ import XDDesignKit
 dependencies: [
     .package(
         url: "https://github.com/YLJunAnglee/XDDesignKit.git",
-        .upToNextMinor(from: "0.5.0")
+        .upToNextMinor(from: "0.5.2")
     )
 ]
 ```
@@ -144,7 +144,22 @@ XDAlert.show(
 )
 ```
 
-输入框使用 `.textField(...)`。异步操作可把 Action 的 `automaticallyDismisses` 设为 `false`，再通过回调中的 `context.setLoading(_:)` 与 `context.dismiss()` 控制状态。
+输入框推荐使用 `.textInput(...)`，默认保持单行；`.textField(...)` 仍保留用于兼容旧代码。多行输入可选择按可见行数、绝对高度或不设输入框自身上限；达到上限后输入框内部滚动：
+
+```swift
+accessory: .textInput(
+    placeholder: "请输入反馈内容",
+    maximumLength: 200,
+    layout: .multiline(maximum: .lines(4)),
+    onLimitReached: { limit in
+        print("输入限制：\(limit)")
+    }
+)
+
+// 也可使用 .height(160) 或 .unlimited
+```
+
+异步操作可把 Action 的 `automaticallyDismisses` 设为 `false`，再通过回调中的 `context.setLoading(_:)` 与 `context.dismiss()` 控制状态。
 
 标题和正文默认使用 `.adaptive`：短文本居中，超过单行可用宽度后按自然阅读方向对齐。业务需要固定表现时，可以分别指定 `.leading` 或 `.center`：
 
