@@ -125,6 +125,20 @@ Storyboard/Nib 创建的 Button 可在 scene 确定后调用：
 button.bindThemeContext(context)
 ```
 
+## 专用图标按钮
+
+列表或卡片里的完成状态使用 `XDCheckboxButton`；它会自行切换状态，并同时发送 UIKit 的 `.valueChanged` 事件。更多操作使用无状态的 `XDMoreButton`：
+
+```swift
+let checkbox = XDCheckboxButton(isSelected: item.isCompleted)
+checkbox.onValueChanged = { item.isCompleted = $0 }
+
+let more = XDMoreButton()
+more.onTap = { [weak self] in self?.showMoreActions(for: item) }
+```
+
+两者视觉图标均为 24pt，点击区目标为 44pt；若父容器会裁剪越界点击，为按钮预留 44pt 布局空间。不提供标题、通用 Style 或 Loading 参数。
+
 ## Alert
 
 `XDAlert` 是由当前 UIKit 页面显式展示的居中弹窗；它不会猜测全局窗口，因此可安全用于多 Scene 应用。所有视觉值都来自传入的 `XDThemeContext`。

@@ -1271,6 +1271,42 @@ final class XDDesignKitTests: XCTestCase {
         )
     }
 
+    func testCheckboxButtonTogglesAndNotifiesValueChange() {
+        let button = XDCheckboxButton()
+        var values: [Bool] = []
+        button.onValueChanged = { values.append($0) }
+
+        button.sendActions(for: .touchUpInside)
+
+        XCTAssertTrue(button.isSelected)
+        XCTAssertEqual(values, [true])
+        XCTAssertEqual(button.accessibilityValue, "已选中")
+    }
+
+    func testMoreButtonInvokesTapHandler() {
+        let button = XDMoreButton()
+        var tapCount = 0
+        button.onTap = { tapCount += 1 }
+
+        button.sendActions(for: .touchUpInside)
+
+        XCTAssertEqual(tapCount, 1)
+        XCTAssertEqual(button.accessibilityLabel, "更多操作")
+    }
+
+    func testSpecialIconButtonsKeepCompactLayoutAndExpandedHitTargets() {
+        let checkbox = XDCheckboxButton()
+        let more = XDMoreButton()
+        [checkbox, more].forEach {
+            $0.frame = CGRect(x: 0, y: 0, width: 24, height: 24)
+        }
+
+        XCTAssertEqual(checkbox.intrinsicContentSize, CGSize(width: 24, height: 24))
+        XCTAssertEqual(more.intrinsicContentSize, CGSize(width: 24, height: 24))
+        XCTAssertTrue(checkbox.point(inside: CGPoint(x: -5, y: 12), with: nil))
+        XCTAssertTrue(more.point(inside: CGPoint(x: 29, y: 12), with: nil))
+    }
+
     func testFoundationMetricsIncludeMotionTypographyAndPhysicalHairline() {
         let metrics = XDThemeMetrics.default
         let resolver = XDThemeResolver(

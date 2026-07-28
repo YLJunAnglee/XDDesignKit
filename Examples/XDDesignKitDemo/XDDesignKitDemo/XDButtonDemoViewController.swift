@@ -150,7 +150,29 @@ final class XDButtonDemoViewController: UIViewController, XDThemeable {
         text.setTitle("请求资料", for: .normal)
         text.setIcon(.arrowForward, placement: .trailing)
 
-        [primary, choose, actions, promotion, text].forEach(stack.addArrangedSubview)
+        let iconButtons = UIStackView()
+        iconButtons.axis = .horizontal
+        iconButtons.alignment = .center
+        iconButtons.spacing = XDSpacing.md
+        let checkbox = XDCheckboxButton()
+        let more = XDMoreButton()
+        let iconStatus = UILabel()
+        iconStatus.text = "未完成"
+        checkbox.onValueChanged = { [weak iconStatus] isSelected in
+            iconStatus?.text = isSelected ? "已完成" : "未完成"
+        }
+        more.onTap = { [weak iconStatus] in
+            iconStatus?.text = "已触发更多操作"
+        }
+        bindTheme { [weak iconStatus] traitCollection in
+            iconStatus?.font = XDFont.font(.caption, compatibleWith: traitCollection)
+            iconStatus?.textColor = XDColor.color(.textSecondary, compatibleWith: traitCollection)
+        }
+        iconButtons.addArrangedSubview(checkbox)
+        iconButtons.addArrangedSubview(more)
+        iconButtons.addArrangedSubview(iconStatus)
+
+        [primary, choose, actions, promotion, text, iconButtons].forEach(stack.addArrangedSubview)
         return card(stack)
     }
 

@@ -2,7 +2,7 @@
 
 用于根据 UI 需求选择 XDDesignKit API。完整接入和架构说明见 `README.md`。
 
-当前可用业务组件只有 `XDButton` 和 `XDAlert`。不要假设存在 `XDLabel`、`XDTag`、`XDTextField` 等未实现组件。
+当前可用业务组件有 `XDButton`、`XDCheckboxButton`、`XDMoreButton` 和 `XDAlert`。不要假设存在 `XDLabel`、`XDTag`、`XDTextField` 等未实现组件。
 
 本库面向 UIKit（iOS 14+），业务 Target 使用前先 `import XDDesignKit`。本页覆盖 XDDesignKit 特有的 UI 选择和约束，不重复 UIKit 继承 API。视觉以 `Examples/XDDesignKitDemo` 为准，精确签名以 `Sources/XDDesignKit` 为准；冲突时遵循源码并更新本页。
 
@@ -51,6 +51,23 @@ button.setIcon(.arrowForward, placement: .trailing)
 仅临时或业务专属图片使用 `setIconImage(...)`。原生 `setTitle`、`setAttributedTitle`、`setImage` 和 `addTarget` 仍可使用；不要用 `isEnabled = false` 模拟 Loading。
 
 `XDButton` 只用于单标题、单图标操作；副标题、角标、头像或复杂组合内容改用 UIKit 或扩展组件库。视觉由 Style、Size 和 Theme 控制，不直接覆盖背景、圆角、高度或内容边距。`stackedContentPaddingOverride` 必须是有限非负数。
+
+## 专用图标按钮
+
+| UI 意图 | API |
+| --- | --- |
+| 列表/卡片完成状态，可点击切换 | `XDCheckboxButton(isSelected:)` + `onValueChanged` |
+| 列表/卡片更多操作 | `XDMoreButton()` + `onTap` |
+
+```swift
+let checkbox = XDCheckboxButton(isSelected: item.isCompleted)
+checkbox.onValueChanged = { item.isCompleted = $0 }
+
+let more = XDMoreButton()
+more.onTap = { showMoreActions(for: item) }
+```
+
+两者视觉图标均为 24pt、点击区目标为 44pt；若父容器会裁剪越界点击，为按钮预留 44pt 布局空间。不传文字、不提供通用 Style 或 Loading。需要场景主题隔离时，在初始化时传入 `themeContext`。
 
 ## XDAlert
 
