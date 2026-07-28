@@ -1294,17 +1294,35 @@ final class XDDesignKitTests: XCTestCase {
         XCTAssertEqual(button.accessibilityLabel, "更多操作")
     }
 
-    func testSpecialIconButtonsKeepCompactLayoutAndExpandedHitTargets() {
+    func testCloseButtonInvokesTapHandler() {
+        let button = XDCloseButton()
+        var tapCount = 0
+        button.onTap = { tapCount += 1 }
+
+        button.sendActions(for: .touchUpInside)
+
+        XCTAssertEqual(tapCount, 1)
+        XCTAssertEqual(button.accessibilityLabel, "关闭")
+    }
+
+    func testSpecialIconButtonsReserveMinimumHitTargetsAroundCompactIcons() {
         let checkbox = XDCheckboxButton()
         let more = XDMoreButton()
-        [checkbox, more].forEach {
-            $0.frame = CGRect(x: 0, y: 0, width: 24, height: 24)
+        let close = XDCloseButton()
+        [checkbox, more, close].forEach {
+            $0.frame = CGRect(x: 0, y: 0, width: 44, height: 44)
+            $0.layoutIfNeeded()
         }
 
-        XCTAssertEqual(checkbox.intrinsicContentSize, CGSize(width: 24, height: 24))
-        XCTAssertEqual(more.intrinsicContentSize, CGSize(width: 24, height: 24))
-        XCTAssertTrue(checkbox.point(inside: CGPoint(x: -5, y: 12), with: nil))
-        XCTAssertTrue(more.point(inside: CGPoint(x: 29, y: 12), with: nil))
+        XCTAssertEqual(checkbox.intrinsicContentSize, CGSize(width: 44, height: 44))
+        XCTAssertEqual(more.intrinsicContentSize, CGSize(width: 44, height: 44))
+        XCTAssertEqual(close.intrinsicContentSize, CGSize(width: 44, height: 44))
+        XCTAssertEqual(checkbox.subviews.first?.frame, CGRect(x: 10, y: 10, width: 24, height: 24))
+        XCTAssertEqual(more.subviews.first?.frame, CGRect(x: 10, y: 10, width: 24, height: 24))
+        XCTAssertEqual(close.subviews.first?.frame, CGRect(x: 10, y: 10, width: 24, height: 24))
+        XCTAssertFalse(checkbox.point(inside: CGPoint(x: -1, y: 22), with: nil))
+        XCTAssertFalse(more.point(inside: CGPoint(x: 45, y: 22), with: nil))
+        XCTAssertFalse(close.point(inside: CGPoint(x: 22, y: -1), with: nil))
     }
 
     func testFoundationMetricsIncludeMotionTypographyAndPhysicalHairline() {

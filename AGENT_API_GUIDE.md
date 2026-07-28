@@ -2,7 +2,7 @@
 
 用于根据 UI 需求选择 XDDesignKit API。完整接入和架构说明见 `README.md`。
 
-当前可用业务组件有 `XDButton`、`XDCheckboxButton`、`XDMoreButton` 和 `XDAlert`。不要假设存在 `XDLabel`、`XDTag`、`XDTextField` 等未实现组件。
+当前可用业务组件有 `XDButton`、`XDCheckboxButton`、`XDMoreButton`、`XDCloseButton` 和 `XDAlert`。不要假设存在 `XDLabel`、`XDTag`、`XDTextField` 等未实现组件。
 
 本库面向 UIKit（iOS 14+），业务 Target 使用前先 `import XDDesignKit`。本页覆盖 XDDesignKit 特有的 UI 选择和约束，不重复 UIKit 继承 API。视觉以 `Examples/XDDesignKitDemo` 为准，精确签名以 `Sources/XDDesignKit` 为准；冲突时遵循源码并更新本页。
 
@@ -58,6 +58,7 @@ button.setIcon(.arrowForward, placement: .trailing)
 | --- | --- |
 | 列表/卡片完成状态，可点击切换 | `XDCheckboxButton(isSelected:)` + `onValueChanged` |
 | 列表/卡片更多操作 | `XDMoreButton()` + `onTap` |
+| 页面、卡片或自定义弹层的关闭入口 | `XDCloseButton()` + `onTap` |
 
 ```swift
 let checkbox = XDCheckboxButton(isSelected: item.isCompleted)
@@ -65,9 +66,12 @@ checkbox.onValueChanged = { item.isCompleted = $0 }
 
 let more = XDMoreButton()
 more.onTap = { showMoreActions(for: item) }
+
+let close = XDCloseButton()
+close.onTap = { dismiss(animated: true) }
 ```
 
-两者视觉图标均为 24pt、点击区目标为 44pt；若父容器会裁剪越界点击，为按钮预留 44pt 布局空间。不传文字、不提供通用 Style 或 Loading。需要场景主题隔离时，在初始化时传入 `themeContext`。
+三者默认布局和点击区均为 44pt，视觉图标为居中的 24pt；不要把它们约束为 24pt 或让相邻可点击控件侵入该区域。不传文字、不提供通用 Style 或 Loading。需要场景主题隔离时，在初始化时传入 `themeContext`。
 
 ## XDAlert
 

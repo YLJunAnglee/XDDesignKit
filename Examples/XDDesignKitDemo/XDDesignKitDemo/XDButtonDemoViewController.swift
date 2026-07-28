@@ -156,6 +156,7 @@ final class XDButtonDemoViewController: UIViewController, XDThemeable {
         iconButtons.spacing = XDSpacing.md
         let checkbox = XDCheckboxButton()
         let more = XDMoreButton()
+        let closeIcon = XDCloseButton()
         let iconStatus = UILabel()
         iconStatus.text = "未完成"
         checkbox.onValueChanged = { [weak iconStatus] isSelected in
@@ -164,12 +165,16 @@ final class XDButtonDemoViewController: UIViewController, XDThemeable {
         more.onTap = { [weak iconStatus] in
             iconStatus?.text = "已触发更多操作"
         }
+        closeIcon.onTap = { [weak iconStatus] in
+            iconStatus?.text = "已触发关闭"
+        }
         bindTheme { [weak iconStatus] traitCollection in
             iconStatus?.font = XDFont.font(.caption, compatibleWith: traitCollection)
             iconStatus?.textColor = XDColor.color(.textSecondary, compatibleWith: traitCollection)
         }
         iconButtons.addArrangedSubview(checkbox)
         iconButtons.addArrangedSubview(more)
+        iconButtons.addArrangedSubview(closeIcon)
         iconButtons.addArrangedSubview(iconStatus)
 
         [primary, choose, actions, promotion, text, iconButtons].forEach(stack.addArrangedSubview)

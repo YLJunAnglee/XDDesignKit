@@ -7,6 +7,7 @@ public final class XDMoreButton: UIControl, XDThemeable {
     public private(set) var xdThemeContext: XDThemeContext
 
     private let imageView = UIImageView()
+    private let visualIconSize = CGSize(width: 24, height: 24)
 
     public override var isEnabled: Bool {
         didSet { updatePresentation() }
@@ -28,7 +29,10 @@ public final class XDMoreButton: UIControl, XDThemeable {
         xdApplyTheme()
     }
 
-    public override var intrinsicContentSize: CGSize { imageView.image?.size ?? CGSize(width: 24, height: 24) }
+    /// The control reserves the theme's minimum hit target; its visible icon remains 24 points.
+    public override var intrinsicContentSize: CGSize {
+        xdThemeContext.currentTheme.components.button.minimumHitTargetSize
+    }
 
     /// Rebinds a reused button to a scene-specific theme context.
     public func bindThemeContext(_ themeContext: XDThemeContext) {
@@ -65,10 +69,10 @@ public final class XDMoreButton: UIControl, XDThemeable {
         addSubview(imageView)
         imageView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            imageView.topAnchor.constraint(equalTo: topAnchor),
-            imageView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            imageView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            imageView.bottomAnchor.constraint(equalTo: bottomAnchor)
+            imageView.centerXAnchor.constraint(equalTo: centerXAnchor),
+            imageView.centerYAnchor.constraint(equalTo: centerYAnchor),
+            imageView.widthAnchor.constraint(equalToConstant: visualIconSize.width),
+            imageView.heightAnchor.constraint(equalToConstant: visualIconSize.height)
         ])
         accessibilityLabel = "更多操作"
         addTarget(self, action: #selector(handleTap), for: .touchUpInside)

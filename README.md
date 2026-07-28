@@ -127,7 +127,7 @@ button.bindThemeContext(context)
 
 ## 专用图标按钮
 
-列表或卡片里的完成状态使用 `XDCheckboxButton`；它会自行切换状态，并同时发送 UIKit 的 `.valueChanged` 事件。更多操作使用无状态的 `XDMoreButton`：
+列表或卡片里的完成状态使用 `XDCheckboxButton`；它会自行切换状态，并同时发送 UIKit 的 `.valueChanged` 事件。更多操作使用无状态的 `XDMoreButton`；页面、卡片或自定义弹层的关闭入口使用 `XDCloseButton`：
 
 ```swift
 let checkbox = XDCheckboxButton(isSelected: item.isCompleted)
@@ -135,9 +135,12 @@ checkbox.onValueChanged = { item.isCompleted = $0 }
 
 let more = XDMoreButton()
 more.onTap = { [weak self] in self?.showMoreActions(for: item) }
+
+let close = XDCloseButton()
+close.onTap = { [weak self] in self?.dismiss(animated: true) }
 ```
 
-两者视觉图标均为 24pt，点击区目标为 44pt；若父容器会裁剪越界点击，为按钮预留 44pt 布局空间。不提供标题、通用 Style 或 Loading 参数。
+三者默认布局和点击区均为 44pt，视觉图标为居中的 24pt；不要把它们约束为 24pt 或让相邻可点击控件侵入该区域。不提供标题、通用 Style 或 Loading 参数。
 
 ## Alert
 

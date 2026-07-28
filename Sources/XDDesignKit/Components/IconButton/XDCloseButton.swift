@@ -1,31 +1,22 @@
 import UIKit
 
-/// A compact toggle button for completed and uncompleted states.
+/// A compact button that closes or dismisses its surrounding content.
 @MainActor
-public final class XDCheckboxButton: UIControl, XDThemeable {
-    /// Called after a user tap changes `isSelected`.
-    public var onValueChanged: ((Bool) -> Void)?
+public final class XDCloseButton: UIControl, XDThemeable {
+    public var onTap: (() -> Void)?
     public private(set) var xdThemeContext: XDThemeContext
 
     private let imageView = UIImageView()
     private let visualIconSize = CGSize(width: 24, height: 24)
 
-    public override var isSelected: Bool {
-        didSet { updatePresentation() }
-    }
-
     public override var isEnabled: Bool {
         didSet { updatePresentation() }
     }
 
-    public init(
-        isSelected: Bool = false,
-        themeContext: XDThemeContext = XDThemeManager.shared.globalContext
-    ) {
+    public init(themeContext: XDThemeContext = XDThemeManager.shared.globalContext) {
         self.xdThemeContext = themeContext
         super.init(frame: .zero)
         setup()
-        self.isSelected = isSelected
         xdRegisterThemeUpdates()
         xdApplyTheme()
     }
@@ -83,31 +74,29 @@ public final class XDCheckboxButton: UIControl, XDThemeable {
             imageView.widthAnchor.constraint(equalToConstant: visualIconSize.width),
             imageView.heightAnchor.constraint(equalToConstant: visualIconSize.height)
         ])
-        accessibilityLabel = "完成状态"
+        accessibilityLabel = "关闭"
         addTarget(self, action: #selector(handleTap), for: .touchUpInside)
     }
 
     private func updatePresentation() {
-        let assetName = isSelected ? "xd_alert_checkbox_selected" : "xd_alert_checkbox_unselected"
-        let fallbackName = isSelected ? "checkmark.circle.fill" : "circle"
-        if let image = UIImage(named: assetName, in: XDBundle.module, compatibleWith: traitCollection) {
+        if let image = UIImage(
+            named: "xd_alert_action_close",
+            in: XDBundle.module,
+            compatibleWith: traitCollection
+        ) {
             imageView.image = image.withRenderingMode(.alwaysOriginal)
             imageView.tintColor = nil
         } else {
-            imageView.image = UIImage(systemName: fallbackName)?.withRenderingMode(.alwaysTemplate)
+            imageView.image = UIImage(systemName: "xmark")?.withRenderingMode(.alwaysTemplate)
             imageView.tintColor = xdThemeResolver.color(.textPrimary)
         }
         alpha = isEnabled ? 1 : xdThemeResolver.opacity(.disabled)
-        accessibilityValue = isSelected ? "已选中" : "未选中"
-        accessibilityTraits = isSelected ? [.button, .selected] : [.button]
-        if !isEnabled { accessibilityTraits.insert(.notEnabled) }
+        accessibilityTraits = isEnabled ? [.button] : [.button, .notEnabled]
         invalidateIntrinsicContentSize()
     }
 
     @objc private func handleTap() {
         guard isEnabled else { return }
-        isSelected.toggle()
-        sendActions(for: .valueChanged)
-        onValueChanged?(isSelected)
+        onTap?()
     }
 }
