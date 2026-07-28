@@ -30,9 +30,9 @@ final class XDAlertStandardContentView: UIView, XDThemeable {
 
     var checkboxIsSelected: Bool? { checkboxView?.isSelected }
     var textFieldText: String? { textInputView?.text }
-    var primaryInputRect: CGRect? {
+    var primaryInputCaretRect: CGRect? {
         guard let textInputView else { return nil }
-        return textInputView.convert(textInputView.primaryInputRect, to: self)
+        return textInputView.convert(textInputView.primaryInputCaretRect, to: self)
     }
 
     init(

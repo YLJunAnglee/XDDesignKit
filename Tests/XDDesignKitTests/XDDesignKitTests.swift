@@ -263,6 +263,26 @@ final class XDDesignKitTests: XCTestCase {
         XCTAssertEqual(field.text, "背书📚")
     }
 
+    func testAlertSingleLineInputCanShowCharacterCount() throws {
+        let context = try XDThemeContext(initialTheme: .defaultTheme)
+        let input = XDAlertTextInputView(
+            configuration: .init(
+                text: "名称名称名称",
+                maximumLength: 15,
+                showsCharacterCount: true
+            ),
+            themeContext: context
+        )
+
+        layoutAlertTextInput(input)
+
+        let countLabel = try XCTUnwrap(
+            input.subviews.compactMap { $0 as? UILabel }.first
+        )
+        XCTAssertEqual(countLabel.text, "6/15")
+        XCTAssertGreaterThan(countLabel.frame.minX, input.bounds.midX)
+    }
+
     func testAlertMultilineTextLengthUsesComposedCharacters() throws {
         let context = try XDThemeContext(initialTheme: .defaultTheme)
         let input = XDAlertTextInputView(
@@ -305,6 +325,24 @@ final class XDDesignKitTests: XCTestCase {
 
         layoutAlertTextInput(input)
 
+        XCTAssertEqual(input.bounds.height, 72, accuracy: 0.5)
+        XCTAssertTrue(try XCTUnwrap(input.subviews.first { $0 is UITextView } as? UITextView).isScrollEnabled)
+    }
+
+    func testAlertMultilineInputWrapsLongTextWithoutExplicitLineBreaks() throws {
+        let context = try XDThemeContext(initialTheme: .defaultTheme)
+        let text = String(repeating: "自动换行内容", count: 12)
+        let input = XDAlertTextInputView(
+            configuration: .init(
+                text: text,
+                layout: .multiline(maximum: .lines(2))
+            ),
+            themeContext: context
+        )
+
+        layoutAlertTextInput(input)
+
+        XCTAssertFalse(text.contains("\n"))
         XCTAssertEqual(input.bounds.height, 72, accuracy: 0.5)
         XCTAssertTrue(try XCTUnwrap(input.subviews.first { $0 is UITextView } as? UITextView).isScrollEnabled)
     }

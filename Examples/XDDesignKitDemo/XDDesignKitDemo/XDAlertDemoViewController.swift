@@ -133,7 +133,7 @@ final class XDAlertDemoViewController: UIViewController, XDThemeable {
     }
 
     private func showTextFieldSingleAction() {
-        show(title: "新建分类", message: "请输入分类名称。", accessory: .textField(placeholder: "请输入文本", maximumLength: 20), actions: [.primary("创建")])
+        show(title: "新建分类", message: "请输入分类名称。", accessory: .textInput(placeholder: "请输入文本", maximumLength: 20, showsCharacterCount: true), actions: [.primary("创建")])
     }
 
     private func showTextFieldConfirmation() {

@@ -23,6 +23,7 @@ final class XDAlertViewController: UIViewController, XDThemeable {
     private var contentBottomConstraint: NSLayoutConstraint!
     private var contentWidthConstraint: NSLayoutConstraint!
     private var keyboardOverlap: CGFloat = 0
+    private let keyboardTopFreeSpaceRatio: CGFloat = 0.75
     private var hasAnimatedPresentation = false
     private var isDismissingAlert = false
     private var hasNotifiedDismissal = false
@@ -40,6 +41,8 @@ final class XDAlertViewController: UIViewController, XDThemeable {
         self.renderer.onContentSizeChange = { [weak self] in
             guard let self, self.isViewLoaded else { return }
             self.view.setNeedsLayout()
+            self.view.layoutIfNeeded()
+            self.scrollPrimaryInputIntoView()
         }
         modalPresentationStyle = .overFullScreen
         modalPresentationCapturesStatusBarAppearance = false
@@ -220,7 +223,20 @@ final class XDAlertViewController: UIViewController, XDThemeable {
                 - keyboardOverlap
         )
         cardHeightConstraint.constant = min(desiredHeight, availableHeight)
-        cardCenterYConstraint.constant = -keyboardOverlap / 2
+        if keyboardOverlap > 0 {
+            let topBoundary = safeInsets.top + theme.screenVerticalInset
+            let bottomBoundary = view.bounds.maxY
+                - keyboardOverlap
+                - safeInsets.bottom
+                - theme.screenVerticalInset
+            let freeHeight = max(0, bottomBoundary - topBoundary - cardHeightConstraint.constant)
+            let cardCenterY = topBoundary
+                + freeHeight * keyboardTopFreeSpaceRatio
+                + cardHeightConstraint.constant / 2
+            cardCenterYConstraint.constant = cardCenterY - view.bounds.midY
+        } else {
+            cardCenterYConstraint.constant = 0
+        }
         scrollView.isScrollEnabled = desiredHeight > availableHeight
         scrollView.showsVerticalScrollIndicator = scrollView.isScrollEnabled
     }
@@ -271,8 +287,8 @@ final class XDAlertViewController: UIViewController, XDThemeable {
     }
 
     private func scrollPrimaryInputIntoView() {
-        guard let inputRect = renderer.primaryInputRect else { return }
-        scrollView.scrollRectToVisible(renderer.view.convert(inputRect, to: scrollView), animated: false)
+        guard let caretRect = renderer.primaryInputCaretRect else { return }
+        scrollView.scrollRectToVisible(renderer.view.convert(caretRect, to: scrollView), animated: false)
     }
 
     private func notifyDidDismissIfNeeded() {

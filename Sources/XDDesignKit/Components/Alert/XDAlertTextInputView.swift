@@ -11,10 +11,12 @@ final class XDAlertTextInputView: UIView, XDThemeable {
     private let textField: UITextField?
     private let textView: UITextView?
     private let placeholderLabel: UILabel?
+    private let characterCountLabel: UILabel?
     private var textFieldLengthController: XDAlertTextFieldLengthController?
     private var heightConstraint: NSLayoutConstraint!
     private var textFieldLeadingConstraint: NSLayoutConstraint?
     private var textFieldTrailingConstraint: NSLayoutConstraint?
+    private var characterCountTrailingConstraint: NSLayoutConstraint?
     private var placeholderLeadingConstraint: NSLayoutConstraint?
     private var placeholderTrailingConstraint: NSLayoutConstraint?
     private var placeholderTopConstraint: NSLayoutConstraint?
@@ -32,9 +34,22 @@ final class XDAlertTextInputView: UIView, XDThemeable {
         }
     }
 
-    var primaryInputRect: CGRect {
-        let inputView: UIView = textField ?? textView ?? self
-        return inputView.convert(inputView.bounds, to: self)
+    var primaryInputCaretRect: CGRect {
+        if let textField {
+            let position = textField.selectedTextRange?.end ?? textField.endOfDocument
+            return textField.convert(textField.caretRect(for: position), to: self)
+        }
+        if let textView {
+            let selectedRange = textView.selectedRange
+            guard selectedRange.location != NSNotFound else {
+                return textView.convert(textView.caretRect(for: textView.endOfDocument), to: self)
+            }
+            let offset = min(textView.text.utf16.count, selectedRange.location + selectedRange.length)
+            let position = textView.position(from: textView.beginningOfDocument, offset: offset)
+                ?? textView.endOfDocument
+            return textView.convert(textView.caretRect(for: position), to: self)
+        }
+        return bounds
     }
 
     init(configuration: XDAlertTextFieldConfiguration, themeContext: XDThemeContext) {
@@ -45,10 +60,12 @@ final class XDAlertTextInputView: UIView, XDThemeable {
             textField = UITextField()
             textView = nil
             placeholderLabel = nil
+            characterCountLabel = configuration.showsCharacterCount ? UILabel() : nil
         case .multiline:
             textField = nil
             textView = UITextView()
             placeholderLabel = UILabel()
+            characterCountLabel = nil
         }
         super.init(frame: .zero)
         setup()
@@ -88,7 +105,10 @@ final class XDAlertTextInputView: UIView, XDThemeable {
         layer.cornerRadius = resolver.radius(.md)
         heightConstraint.constant = theme.inputHeight
         textFieldLeadingConstraint?.constant = theme.inputHorizontalInset
-        textFieldTrailingConstraint?.constant = -theme.inputHorizontalInset
+        if characterCountLabel == nil {
+            textFieldTrailingConstraint?.constant = -theme.inputHorizontalInset
+        }
+        characterCountTrailingConstraint?.constant = -theme.inputHorizontalInset
 
         if let textField {
             textField.font = font
@@ -98,6 +118,12 @@ final class XDAlertTextInputView: UIView, XDThemeable {
                 string: configuration.placeholder ?? "",
                 attributes: [.font: font, .foregroundColor: placeholderColor]
             )
+        }
+
+        if let characterCountLabel {
+            characterCountLabel.font = font
+            characterCountLabel.textColor = placeholderColor
+            updateCharacterCount()
         }
 
         if let textView, let placeholderLabel {
@@ -163,6 +189,13 @@ final class XDAlertTextInputView: UIView, XDThemeable {
         textField.borderStyle = .none
         textField.backgroundColor = .clear
         textField.accessibilityLabel = configuration.placeholder
+        if let characterCountLabel {
+            characterCountLabel.isAccessibilityElement = false
+            characterCountLabel.setContentHuggingPriority(.required, for: .horizontal)
+            characterCountLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+            addSubview(characterCountLabel)
+            characterCountLabel.translatesAutoresizingMaskIntoConstraints = false
+        }
         let lengthController = XDAlertTextFieldLengthController(
             maximumLength: configuration.maximumLength
         )
@@ -186,16 +219,35 @@ final class XDAlertTextInputView: UIView, XDThemeable {
             equalTo: leadingAnchor,
             constant: theme.inputHorizontalInset
         )
-        textFieldTrailingConstraint = textField.trailingAnchor.constraint(
-            equalTo: trailingAnchor,
-            constant: -theme.inputHorizontalInset
-        )
-        NSLayoutConstraint.activate([
+        if let characterCountLabel {
+            textFieldTrailingConstraint = textField.trailingAnchor.constraint(
+                equalTo: characterCountLabel.leadingAnchor,
+                constant: -8
+            )
+        } else {
+            textFieldTrailingConstraint = textField.trailingAnchor.constraint(
+                equalTo: trailingAnchor,
+                constant: -theme.inputHorizontalInset
+            )
+        }
+        var constraints = [
             textField.topAnchor.constraint(equalTo: topAnchor),
             textFieldLeadingConstraint!,
             textFieldTrailingConstraint!,
             textField.bottomAnchor.constraint(equalTo: bottomAnchor)
-        ])
+        ]
+        if let characterCountLabel {
+            characterCountTrailingConstraint = characterCountLabel.trailingAnchor.constraint(
+                equalTo: trailingAnchor,
+                constant: -theme.inputHorizontalInset
+            )
+            constraints += [
+                characterCountTrailingConstraint!,
+                characterCountLabel.centerYAnchor.constraint(equalTo: centerYAnchor)
+            ]
+        }
+        NSLayoutConstraint.activate(constraints)
+        updateCharacterCount()
     }
 
     private func setupTextView() {
@@ -300,6 +352,7 @@ final class XDAlertTextInputView: UIView, XDThemeable {
     }
 
     @objc func handleTextFieldChange(_ textField: UITextField) {
+        updateCharacterCount()
         let reached = configuration.maximumLength.map { textField.text?.count ?? 0 >= $0 } ?? false
         if reached && !isAtMaximumLength {
             configuration.onLimitReached?(.maximumLength)
@@ -308,6 +361,7 @@ final class XDAlertTextInputView: UIView, XDThemeable {
     }
 
     private func updateLengthLimitState(for textView: UITextView) {
+        guard textView.markedTextRange == nil else { return }
         let reached = configuration.maximumLength.map { textView.text.count >= $0 } ?? false
         if reached && !isAtMaximumLength {
             configuration.onLimitReached?(.maximumLength)
@@ -317,6 +371,33 @@ final class XDAlertTextInputView: UIView, XDThemeable {
 
     private func updatePlaceholderVisibility() {
         placeholderLabel?.isHidden = !(textView?.text.isEmpty ?? true)
+    }
+
+    private func updateCharacterCount() {
+        guard let characterCountLabel, let maximumLength = configuration.maximumLength else { return }
+        let currentCount = textField?.text?.count ?? 0
+        let currentText = String(currentCount)
+        let maximumText = "/\(maximumLength)"
+        let theme = xdThemeResolver.theme.components.alert
+        let font = characterCountLabel.font ?? UIFont.preferredFont(forTextStyle: .body)
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: font,
+            .foregroundColor: theme.color(for: theme.inputTextToken, resolver: xdThemeResolver)
+        ]
+        let value = NSMutableAttributedString(string: currentText, attributes: attributes)
+        value.append(
+            NSAttributedString(
+                string: maximumText,
+                attributes: [
+                    .font: font,
+                    .foregroundColor: theme.color(
+                        for: theme.inputPlaceholderToken,
+                        resolver: xdThemeResolver
+                    )
+                ]
+            )
+        )
+        characterCountLabel.attributedText = value
     }
 }
 

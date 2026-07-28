@@ -43,12 +43,19 @@ Single-line and multiline inputs share configuration, theming, committed-text
 length enforcement, action-context output, focus, and keyboard avoidance.
 New call sites should use the semantic `.textInput(...)` accessory factory;
 `.textField(...)` remains as a source-compatible alias.
+Single-line inputs may opt into a right-aligned `current/maximum` character
+count when a maximum length is configured; the counter reserves input width and
+is intentionally unavailable for multiline inputs.
 Single-line input remains backed by `UITextField`, including secure entry.
 Multiline input is backed by `UITextView`; it grows from the theme's input
 height and starts internal scrolling only after its configured line or height
 limit. Unlimited growth delegates screen-height overflow to the alert shell's
 scroll view. Secure multiline input is intentionally rejected because UIKit
 does not provide native secure behavior for `UITextView`.
+
+When multiline content changes while the keyboard is already visible, the alert
+shell relayouts and scrolls the current insertion caret into view. Length-limit
+events wait for marked text from an input method to commit before firing.
 
 When the maximum committed character length or configured multiline height is
 reached, `onLimitReached` emits a single transition event. Removing content

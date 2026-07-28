@@ -45,6 +45,7 @@ public struct XDAlertTextFieldConfiguration {
     public let keyboardType: UIKeyboardType
     public let isSecureTextEntry: Bool
     public let maximumLength: Int?
+    public let showsCharacterCount: Bool
     public let layout: XDAlertTextInputLayout
     public let onLimitReached: ((XDAlertTextInputLimit) -> Void)?
 
@@ -54,11 +55,16 @@ public struct XDAlertTextFieldConfiguration {
         keyboardType: UIKeyboardType = .default,
         isSecureTextEntry: Bool = false,
         maximumLength: Int? = nil,
+        showsCharacterCount: Bool = false,
         layout: XDAlertTextInputLayout = .singleLine,
         onLimitReached: ((XDAlertTextInputLimit) -> Void)? = nil
     ) {
         if let maximumLength {
             precondition(maximumLength > 0, "A text field maximum length must be positive")
+        }
+        if showsCharacterCount {
+            precondition(maximumLength != nil, "A character count requires a maximum length")
+            precondition(layout == .singleLine, "A character count only supports the single-line layout")
         }
         switch layout {
         case .singleLine:
@@ -85,6 +91,7 @@ public struct XDAlertTextFieldConfiguration {
         self.keyboardType = keyboardType
         self.isSecureTextEntry = isSecureTextEntry
         self.maximumLength = maximumLength
+        self.showsCharacterCount = showsCharacterCount
         self.layout = layout
         self.onLimitReached = onLimitReached
     }
@@ -122,6 +129,7 @@ public struct XDAlertAccessory {
         keyboardType: UIKeyboardType = .default,
         isSecureTextEntry: Bool = false,
         maximumLength: Int? = nil,
+        showsCharacterCount: Bool = false,
         layout: XDAlertTextInputLayout = .singleLine,
         onLimitReached: ((XDAlertTextInputLimit) -> Void)? = nil
     ) -> XDAlertAccessory {
@@ -133,6 +141,7 @@ public struct XDAlertAccessory {
                     keyboardType: keyboardType,
                     isSecureTextEntry: isSecureTextEntry,
                     maximumLength: maximumLength,
+                    showsCharacterCount: showsCharacterCount,
                     layout: layout,
                     onLimitReached: onLimitReached
                 )
@@ -148,6 +157,7 @@ public struct XDAlertAccessory {
         keyboardType: UIKeyboardType = .default,
         isSecureTextEntry: Bool = false,
         maximumLength: Int? = nil,
+        showsCharacterCount: Bool = false,
         layout: XDAlertTextInputLayout = .singleLine,
         onLimitReached: ((XDAlertTextInputLimit) -> Void)? = nil
     ) -> XDAlertAccessory {
@@ -157,6 +167,7 @@ public struct XDAlertAccessory {
             keyboardType: keyboardType,
             isSecureTextEntry: isSecureTextEntry,
             maximumLength: maximumLength,
+            showsCharacterCount: showsCharacterCount,
             layout: layout,
             onLimitReached: onLimitReached
         )

@@ -108,11 +108,13 @@ Accessory 参数：
 | 类型 | 可用参数 |
 | --- | --- |
 | `.checkbox(...)` | `title`、`isSelected`、`isEnabled` |
-| `.textInput(...)` | `placeholder`、`text`、`keyboardType`、`isSecureTextEntry`、`maximumLength`、`layout`、`onLimitReached` |
+| `.textInput(...)` | `placeholder`、`text`、`keyboardType`、`isSecureTextEntry`、`maximumLength`、`showsCharacterCount`、`layout`、`onLimitReached` |
 | 单行布局 | `.singleLine`（默认） |
 | 多行布局 | `.multiline(maximum: .lines(n) / .height(h) / .unlimited)` |
 
 Secure 输入只支持单行。插画参数为 `image`、可选 `caption` 和可选 `accessibilityLabel`。Action 工厂均支持 `title`、`automaticallyDismisses` 和 `handler`；需要自定义语义/外观组合时使用 `XDAlertAction(title:role:appearance:...)`。
+
+分类名、试卷名等需要让用户感知剩余字数时，设置 `maximumLength` 并启用 `showsCharacterCount: true`；输入框右侧显示 `当前字数/上限`。该样式只支持单行，默认关闭。
 
 自定义 Action 的 `role` 可选 `.normal` / `.cancel` / `.destructive`，`appearance` 可选 `.filled` / `.outlined` / `.text`。Action 和 Checkbox 标题不能为空；`maximumLength`、`.lines(n)` 和 `.height(h)` 必须为正数；`onLimitReached` 接收 `.maximumLength` 或 `.maximumHeight`。
 
@@ -135,6 +137,8 @@ Secure 输入只支持单行。插画参数为 `image`、可选 `caption` 和可
 ```
 
 Alert 必须从已进入 `UIWindowScene` 的当前 `UIViewController` 展示。新代码使用 `.textInput(...)`；`.textField(...)` 仅为旧调用兼容。
+
+输入键盘出现时，Alert 在安全区到键盘顶部的可用区域内分配留白：顶部约 3/4、底部约 1/4；内容过高时内部滚动并保持当前光标可见。
 
 `XDAlert.show` 返回 `XDAlertHandle`，可读取 `isPresented`、`presentationFailure`，或调用 `dismiss(animated:)`。
 
