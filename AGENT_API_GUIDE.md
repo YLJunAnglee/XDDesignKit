@@ -116,6 +116,14 @@ Secure 输入只支持单行。插画参数为 `image`、可选 `caption` 和可
 
 分类名、试卷名等需要让用户感知剩余字数时，设置 `maximumLength` 并启用 `showsCharacterCount: true`；输入框右侧显示 `当前字数/上限`。该样式只支持单行，默认关闭。
 
+```swift
+accessory: .textInput(
+    placeholder: "请输入试卷名称",
+    maximumLength: 15,
+    showsCharacterCount: true
+)
+```
+
 自定义 Action 的 `role` 可选 `.normal` / `.cancel` / `.destructive`，`appearance` 可选 `.filled` / `.outlined` / `.text`。Action 和 Checkbox 标题不能为空；`maximumLength`、`.lines(n)` 和 `.height(h)` 必须为正数；`onLimitReached` 接收 `.maximumLength` 或 `.maximumHeight`。
 
 需要复选或输入结果时，从 Action Context 获取：

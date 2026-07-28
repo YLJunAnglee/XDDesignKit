@@ -176,6 +176,16 @@ XDAlert.show(
 )
 ```
 
+单行名称输入需要显示字数时，配合 `maximumLength` 启用 `showsCharacterCount`；右侧显示 `当前字数/上限`。未启用时保持普通输入框，计数样式不支持多行：
+
+```swift
+accessory: .textInput(
+    placeholder: "请输入试卷名称",
+    maximumLength: 15,
+    showsCharacterCount: true
+)
+```
+
 复选框图标由组件资源包提供，业务项目无需重复导入图片。复选框视觉高度遵循设计规格，实际点击热区仍保持至少 44pt。
 
 `presenter` 必须已经关联到 `UIWindowScene`。若页面尚未进入窗口，Alert 不会绕过 Scene 协调器展示，可通过返回的 `handle.presentationFailure` 获取失败原因。

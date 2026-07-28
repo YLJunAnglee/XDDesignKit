@@ -45,6 +45,8 @@ public struct XDAlertTextFieldConfiguration {
     public let keyboardType: UIKeyboardType
     public let isSecureTextEntry: Bool
     public let maximumLength: Int?
+    /// Shows a right-aligned `current/maximum` count for a single-line input.
+    /// Requires `maximumLength`; defaults to `false`.
     public let showsCharacterCount: Bool
     public let layout: XDAlertTextInputLayout
     public let onLimitReached: ((XDAlertTextInputLimit) -> Void)?
