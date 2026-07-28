@@ -133,6 +133,18 @@ button.bindThemeContext(context)
 let checkbox = XDCheckboxButton(isSelected: item.isCompleted)
 checkbox.onValueChanged = { item.isCompleted = $0 }
 
+let confirmedCheckbox = XDCheckboxButton(
+    isSelected: item.isCompleted,
+    selectionBehavior: .requiresConfirmation
+)
+confirmedCheckbox.onValueChangeRequest = { desiredValue in
+    updateCompletedOnServer(desiredValue) { success in
+        success
+            ? confirmedCheckbox.resolveSelectionChange(to: desiredValue)
+            : confirmedCheckbox.cancelSelectionChange()
+    }
+}
+
 let more = XDMoreButton()
 more.onTap = { [weak self] in self?.showMoreActions(for: item) }
 
@@ -141,6 +153,8 @@ close.onTap = { [weak self] in self?.dismiss(animated: true) }
 ```
 
 三者默认布局和点击区均为 44pt，视觉图标为居中的 24pt；不要把它们约束为 24pt 或让相邻可点击控件侵入该区域。不提供标题、通用 Style 或 Loading 参数。
+
+`XDCheckboxButton` 默认点击即切换。接口成功后才更新状态时，初始化传入 `selectionBehavior: .requiresConfirmation`：点击只触发 `onValueChangeRequest` 并进入 `isPending`，成功调用 `resolveSelectionChange(to:)`，失败调用 `cancelSelectionChange()`。
 
 ## Alert
 

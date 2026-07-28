@@ -1283,6 +1283,40 @@ final class XDDesignKitTests: XCTestCase {
         XCTAssertEqual(button.accessibilityValue, "已选中")
     }
 
+    func testCheckboxButtonWaitsForConfirmationBeforeCommittingState() {
+        let button = XDCheckboxButton(selectionBehavior: .requiresConfirmation)
+        var requestedValues: [Bool] = []
+        var committedValues: [Bool] = []
+        button.onValueChangeRequest = { requestedValues.append($0) }
+        button.onValueChanged = { committedValues.append($0) }
+
+        button.sendActions(for: .touchUpInside)
+
+        XCTAssertFalse(button.isSelected)
+        XCTAssertTrue(button.isPending)
+        XCTAssertEqual(requestedValues, [true])
+        XCTAssertTrue(committedValues.isEmpty)
+        XCTAssertEqual(button.accessibilityValue, "正在更新")
+
+        button.resolveSelectionChange(to: true)
+
+        XCTAssertTrue(button.isSelected)
+        XCTAssertFalse(button.isPending)
+        XCTAssertEqual(committedValues, [true])
+    }
+
+    func testCheckboxButtonCanCancelConfirmationRequest() {
+        let button = XDCheckboxButton(isSelected: true, selectionBehavior: .requiresConfirmation)
+        button.onValueChangeRequest = { _ in }
+
+        button.sendActions(for: .touchUpInside)
+        button.cancelSelectionChange()
+
+        XCTAssertTrue(button.isSelected)
+        XCTAssertFalse(button.isPending)
+        XCTAssertEqual(button.accessibilityValue, "已选中")
+    }
+
     func testMoreButtonInvokesTapHandler() {
         let button = XDMoreButton()
         var tapCount = 0

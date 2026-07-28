@@ -1,10 +1,25 @@
 import UIKit
 
+/// Determines when a checkbox commits its selected state after a user tap.
+public enum XDCheckboxButtonSelectionBehavior: Sendable, Equatable {
+    /// Commits the new state immediately. This is the default behavior.
+    case immediate
+    /// Waits for the caller to confirm or cancel the requested state change.
+    case requiresConfirmation
+}
+
 /// A compact toggle button for completed and uncompleted states.
 @MainActor
 public final class XDCheckboxButton: UIControl, XDThemeable {
-    /// Called after a user tap changes `isSelected`.
+    /// Called whenever the checkbox commits a new selected state.
     public var onValueChanged: ((Bool) -> Void)?
+    /// Called with the requested selected state when confirmation is required.
+    public var onValueChangeRequest: ((Bool) -> Void)?
+    public let selectionBehavior: XDCheckboxButtonSelectionBehavior
+    /// Whether the button is waiting for a confirmation or cancellation from its caller.
+    public private(set) var isPending = false {
+        didSet { updatePresentation() }
+    }
     public private(set) var xdThemeContext: XDThemeContext
 
     private let imageView = UIImageView()
@@ -20,8 +35,10 @@ public final class XDCheckboxButton: UIControl, XDThemeable {
 
     public init(
         isSelected: Bool = false,
+        selectionBehavior: XDCheckboxButtonSelectionBehavior = .immediate,
         themeContext: XDThemeContext = XDThemeManager.shared.globalContext
     ) {
+        self.selectionBehavior = selectionBehavior
         self.xdThemeContext = themeContext
         super.init(frame: .zero)
         setup()
@@ -31,6 +48,7 @@ public final class XDCheckboxButton: UIControl, XDThemeable {
     }
 
     public required init?(coder: NSCoder) {
+        self.selectionBehavior = .immediate
         self.xdThemeContext = XDThemeManager.shared.globalContext
         super.init(coder: coder)
         setup()
@@ -52,6 +70,24 @@ public final class XDCheckboxButton: UIControl, XDThemeable {
         xdApplyTheme()
     }
 
+    /// Commits the current requested state after an asynchronous operation succeeds.
+    public func resolveSelectionChange(to isSelected: Bool) {
+        guard selectionBehavior == .requiresConfirmation, isPending else { return }
+        let didChange = self.isSelected != isSelected
+        self.isSelected = isSelected
+        isPending = false
+        if didChange {
+            sendActions(for: .valueChanged)
+            onValueChanged?(isSelected)
+        }
+    }
+
+    /// Ends the current requested state change without changing `isSelected`.
+    public func cancelSelectionChange() {
+        guard selectionBehavior == .requiresConfirmation, isPending else { return }
+        isPending = false
+    }
+
     public func xdApplyTheme() {
         updatePresentation()
     }
@@ -64,7 +100,7 @@ public final class XDCheckboxButton: UIControl, XDThemeable {
     }
 
     public override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
-        guard isEnabled, isUserInteractionEnabled, !isHidden, alpha > 0.01 else { return false }
+        guard isEnabled, !isPending, isUserInteractionEnabled, !isHidden, alpha > 0.01 else { return false }
         let minimumSize = xdThemeContext.currentTheme.components.button.minimumHitTargetSize
         let horizontalExpansion = max(0, (minimumSize.width - bounds.width) / 2)
         let verticalExpansion = max(0, (minimumSize.height - bounds.height) / 2)
@@ -97,17 +133,26 @@ public final class XDCheckboxButton: UIControl, XDThemeable {
             imageView.image = UIImage(systemName: fallbackName)?.withRenderingMode(.alwaysTemplate)
             imageView.tintColor = xdThemeResolver.color(.textPrimary)
         }
-        alpha = isEnabled ? 1 : xdThemeResolver.opacity(.disabled)
-        accessibilityValue = isSelected ? "已选中" : "未选中"
+        let isInteractive = isEnabled && !isPending
+        alpha = isInteractive ? 1 : xdThemeResolver.opacity(.disabled)
+        accessibilityValue = isPending ? "正在更新" : (isSelected ? "已选中" : "未选中")
         accessibilityTraits = isSelected ? [.button, .selected] : [.button]
-        if !isEnabled { accessibilityTraits.insert(.notEnabled) }
+        if !isInteractive { accessibilityTraits.insert(.notEnabled) }
         invalidateIntrinsicContentSize()
     }
 
     @objc private func handleTap() {
-        guard isEnabled else { return }
-        isSelected.toggle()
-        sendActions(for: .valueChanged)
-        onValueChanged?(isSelected)
+        guard isEnabled, !isPending else { return }
+        let requestedValue = !isSelected
+        switch selectionBehavior {
+        case .immediate:
+            isSelected = requestedValue
+            sendActions(for: .valueChanged)
+            onValueChanged?(isSelected)
+        case .requiresConfirmation:
+            guard let onValueChangeRequest else { return }
+            isPending = true
+            onValueChangeRequest(requestedValue)
+        }
     }
 }

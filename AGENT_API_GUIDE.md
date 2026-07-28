@@ -56,13 +56,26 @@ button.setIcon(.arrowForward, placement: .trailing)
 
 | UI 意图 | API |
 | --- | --- |
-| 列表/卡片完成状态，可点击切换 | `XDCheckboxButton(isSelected:)` + `onValueChanged` |
+| 列表/卡片完成状态，本地立即切换 | `XDCheckboxButton(isSelected:)` + `onValueChanged` |
+| 列表/卡片完成状态，接口成功后才切换 | `selectionBehavior: .requiresConfirmation` + `onValueChangeRequest` |
 | 列表/卡片更多操作 | `XDMoreButton()` + `onTap` |
 | 页面、卡片或自定义弹层的关闭入口 | `XDCloseButton()` + `onTap` |
 
 ```swift
 let checkbox = XDCheckboxButton(isSelected: item.isCompleted)
 checkbox.onValueChanged = { item.isCompleted = $0 }
+
+let confirmedCheckbox = XDCheckboxButton(
+    isSelected: item.isCompleted,
+    selectionBehavior: .requiresConfirmation
+)
+confirmedCheckbox.onValueChangeRequest = { desiredValue in
+    updateCompletedOnServer(desiredValue) { success in
+        success
+            ? confirmedCheckbox.resolveSelectionChange(to: desiredValue)
+            : confirmedCheckbox.cancelSelectionChange()
+    }
+}
 
 let more = XDMoreButton()
 more.onTap = { showMoreActions(for: item) }
@@ -72,6 +85,8 @@ close.onTap = { dismiss(animated: true) }
 ```
 
 三者默认布局和点击区均为 44pt，视觉图标为居中的 24pt；不要把它们约束为 24pt 或让相邻可点击控件侵入该区域。不传文字、不提供通用 Style 或 Loading。需要场景主题隔离时，在初始化时传入 `themeContext`。
+
+`XDCheckboxButton` 默认 `.immediate`，点击后马上更新并发送 `.valueChanged` / `onValueChanged`。`.requiresConfirmation` 点击后只调用 `onValueChangeRequest`，期间 `isPending == true` 且不可重复点击；成功调用 `resolveSelectionChange(to:)`（此时才发送状态变化通知），失败调用 `cancelSelectionChange()` 并保留原状态。复用列表单元格前先取消未完成请求或确保异步回调仍对应同一条数据。
 
 ## XDAlert
 
