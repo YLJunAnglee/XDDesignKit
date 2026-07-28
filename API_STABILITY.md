@@ -21,4 +21,4 @@ Every public API change must include:
 - XCTest coverage for behavior and failure paths.
 - A demo state covering normal, boundary, dark mode, and alternate theme behavior.
 - Strict-concurrency and warning-free builds through `Scripts/verify.sh`.
-- Documentation updates when usage or architecture changes.
+- `AGENT_API_GUIDE.md` updates when consumer-visible components, styles, parameters, defaults, layout rules, or constraints change; other documentation updates when usage or architecture changes.

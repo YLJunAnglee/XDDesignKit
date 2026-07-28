@@ -230,3 +230,7 @@ bash Scripts/verify.sh
 该脚本执行严格并发构建、测试和 Demo 构建。
 
 Demo 首页提供 `XDButton` 和 `XDAlert` 独立体验页。Alert 页面覆盖标准形态、附加控件、插画、关闭方式，以及默认自适应和强制文本对齐示例。
+
+## 面向 Agent 的 API 指南
+
+如果需要让其他 Agent 根据 UI 需求生成 XDDesignKit 代码，请先阅读 [`AGENT_API_GUIDE.md`](AGENT_API_GUIDE.md)。该文档按“UI 效果 → API”组织，并记录持续维护规则。
