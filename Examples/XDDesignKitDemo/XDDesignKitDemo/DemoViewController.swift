@@ -62,6 +62,9 @@ final class DemoViewController: UIViewController, XDThemeable {
 
         contentStack.addArrangedSubview(sectionTitle("Alerts"))
         contentStack.addArrangedSubview(alertSamples())
+
+        contentStack.addArrangedSubview(sectionTitle("Bottom Sheets"))
+        contentStack.addArrangedSubview(bottomSheetSamples())
     }
 
     private func sectionTitle(_ text: String) -> UILabel {
@@ -289,6 +292,20 @@ final class DemoViewController: UIViewController, XDThemeable {
             self?.navigationController?.pushViewController(XDAlertDemoViewController(), animated: true)
         }
         stack.addArrangedSubview(openAlertDemo)
+        return card(stack)
+    }
+
+    private func bottomSheetSamples() -> UIView {
+        let stack = UIStackView()
+        stack.axis = .vertical
+        stack.spacing = XDSpacing.sm
+        let openDemo = XDButton(style: .primary, size: .large)
+        openDemo.setTitle("打开 XDBottomSheet 独立体验页", for: .normal)
+        openDemo.setIcon(.arrowForward, placement: .trailing)
+        openDemo.onTap = { [weak self] in
+            self?.navigationController?.pushViewController(XDBottomSheetDemoViewController(), animated: true)
+        }
+        stack.addArrangedSubview(openDemo)
         return card(stack)
     }
 

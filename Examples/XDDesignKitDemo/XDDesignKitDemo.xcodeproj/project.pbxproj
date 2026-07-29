@@ -12,10 +12,22 @@
 		111111111111111111111103 /* DemoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111111003 /* DemoViewController.swift */; };
 		111111111111111111111109 /* XDButtonDemoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 111111111111111111111009 /* XDButtonDemoViewController.swift */; };
 		111111111111111111111110 /* XDAlertDemoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C035C40E300F961B00F9B493 /* XDAlertDemoViewController.swift */; };
+		5BEA4C6E314B000100000001 /* XDBottomSheetDemoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BEA4C6E314B000100000002 /* XDBottomSheetDemoViewController.swift */; };
 		222222222222222222222101 /* XDDesignKitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222222222222222222222001 /* XDDesignKitTests.swift */; };
+		333333333333333333333101 /* XDBottomSheetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 333333333333333333333001 /* XDBottomSheetTests.swift */; };
 		C035C40C300F961B00F9B493 /* XDDesignKit in Frameworks */ = {isa = PBXBuildFile; productRef = C035C40B300F961B00F9B493 /* XDDesignKit */; };
 		C035C40D300F961B00F9B493 /* XDDesignKit in Frameworks */ = {isa = PBXBuildFile; productRef = C035C40B300F961B00F9B493 /* XDDesignKit */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		444444444444444444444001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 111111111111111111111040 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 111111111111111111111020;
+			remoteInfo = XDDesignKitDemo;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		111111111111111111111001 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -25,8 +37,10 @@
 		111111111111111111111005 /* XDDesignKitDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = XDDesignKitDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		111111111111111111111009 /* XDButtonDemoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XDButtonDemoViewController.swift; sourceTree = "<group>"; };
 		C035C40E300F961B00F9B493 /* XDAlertDemoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XDAlertDemoViewController.swift; sourceTree = "<group>"; };
+		5BEA4C6E314B000100000002 /* XDBottomSheetDemoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XDBottomSheetDemoViewController.swift; sourceTree = "<group>"; };
 		222222222222222222222001 /* XDDesignKitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = XDDesignKitTests.swift; path = ../../Tests/XDDesignKitTests/XDDesignKitTests.swift; sourceTree = SOURCE_ROOT; };
 		222222222222222222222002 /* XDDesignKitDemoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = XDDesignKitDemoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		333333333333333333333001 /* XDBottomSheetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = XDBottomSheetTests.swift; path = ../../Tests/XDDesignKitTests/XDBottomSheetTests.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,6 +80,7 @@
 				111111111111111111111003 /* DemoViewController.swift */,
 				111111111111111111111009 /* XDButtonDemoViewController.swift */,
 				C035C40E300F961B00F9B493 /* XDAlertDemoViewController.swift */,
+				5BEA4C6E314B000100000002 /* XDBottomSheetDemoViewController.swift */,
 				111111111111111111111004 /* Info.plist */,
 			);
 			path = XDDesignKitDemo;
@@ -84,6 +99,7 @@
 			isa = PBXGroup;
 			children = (
 				222222222222222222222001 /* XDDesignKitTests.swift */,
+				333333333333333333333001 /* XDBottomSheetTests.swift */,
 			);
 			name = XDDesignKitDemoTests;
 			sourceTree = "<group>";
@@ -122,6 +138,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				444444444444444444444002 /* PBXTargetDependency */,
 			);
 			name = XDDesignKitDemoTests;
 			packageProductDependencies = (
@@ -198,6 +215,7 @@
 				111111111111111111111103 /* DemoViewController.swift in Sources */,
 				111111111111111111111109 /* XDButtonDemoViewController.swift in Sources */,
 				111111111111111111111110 /* XDAlertDemoViewController.swift in Sources */,
+				5BEA4C6E314B000100000001 /* XDBottomSheetDemoViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -206,10 +224,19 @@
 			buildActionMask = 2147483647;
 			files = (
 				222222222222222222222101 /* XDDesignKitTests.swift in Sources */,
+				333333333333333333333101 /* XDBottomSheetTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		444444444444444444444002 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 111111111111111111111020 /* XDDesignKitDemo */;
+			targetProxy = 444444444444444444444001 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		111111111111111111111031 /* Debug */ = {
@@ -388,7 +415,7 @@
 		222222222222222222222033 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				BUNDLE_LOADER = "";
+				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
@@ -397,13 +424,14 @@
 				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/XDDesignKitDemo.app/XDDesignKitDemo";
 			};
 			name = Debug;
 		};
 		222222222222222222222034 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				BUNDLE_LOADER = "";
+				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
@@ -412,6 +440,7 @@
 				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/XDDesignKitDemo.app/XDDesignKitDemo";
 			};
 			name = Release;
 		};

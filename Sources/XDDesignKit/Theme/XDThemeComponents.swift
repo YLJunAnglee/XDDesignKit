@@ -4,22 +4,27 @@ import Foundation
 public struct XDThemeComponents: Sendable {
     public let button: XDButtonTheme
     public let alert: XDAlertTheme
+    public let bottomSheet: XDBottomSheetTheme
 
     public init(
         button: XDButtonTheme = .default,
-        alert: XDAlertTheme = .default
+        alert: XDAlertTheme = .default,
+        bottomSheet: XDBottomSheetTheme = .default
     ) {
         self.button = button
         self.alert = alert
+        self.bottomSheet = bottomSheet
     }
 
     public func merging(
         button: XDButtonTheme? = nil,
-        alert: XDAlertTheme? = nil
+        alert: XDAlertTheme? = nil,
+        bottomSheet: XDBottomSheetTheme? = nil
     ) -> XDThemeComponents {
         XDThemeComponents(
             button: button ?? self.button,
-            alert: alert ?? self.alert
+            alert: alert ?? self.alert,
+            bottomSheet: bottomSheet ?? self.bottomSheet
         )
     }
 

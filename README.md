@@ -221,6 +221,22 @@ accessory: .textInput(
 
 `presenter` 必须已经关联到 `UIWindowScene`。若页面尚未进入窗口，Alert 不会绕过 Scene 协调器展示，可通过返回的 `handle.presentationFailure` 获取失败原因。
 
+## Bottom Sheet
+
+`XDBottomSheet` 是承载任意 UIKit 内容的通用底部容器，只管理 Surface、遮罩、安全区、键盘、下拉关闭与 Scene 队列；标题、按钮、列表以及 Sheet 内页面切换由业务内容实现。
+
+```swift
+let handle = XDBottomSheet.show(
+    on: self,
+    contentViewController: clozeOptionsController,
+    configuration: .init(height: .content, width: .fullWidth)
+)
+```
+
+也可传 `contentView:`。高度支持 `.content`、`.content(maximum:)`、`.fixed(_)`、`.fraction(_)`；宽度支持 `.fullWidth`、`.horizontalInsets(_)` 和 `.centered(maximumWidth:)`。`.fullWidth` 的 Surface 覆盖整个窗口，横屏内容使用自身 `safeAreaLayoutGuide` 避让刘海或灵动岛。内容变化或 Sheet 内页面完成切换后，调用 `handle.invalidateLayout()`。唯一可见的纵向滚动区会自动参与下拉仲裁；多个纵向滚动区域同时可见时，用 `handle.setPrimaryScrollView(_:)` 明确指定主滚动区。
+
+同一业务流程的二级页面在同一个内容 Controller 内自行切换，不叠加多个 Sheet。视觉统一通过 `XDThemeComponents.bottomSheet` 的 `XDBottomSheetTheme` 配置；完整约束见 `AGENT_API_GUIDE.md` 和 `Components/BottomSheet/DESIGN.md`。
+
 ## 自定义主题
 
 主题必须显式声明基主题：
@@ -270,7 +286,7 @@ bash Scripts/verify.sh
 
 该脚本执行严格并发构建、测试和 Demo 构建。
 
-Demo 首页提供 `XDButton` 和 `XDAlert` 独立体验页。Alert 页面覆盖标准形态、附加控件、插画、关闭方式，以及默认自适应和强制文本对齐示例。
+Demo 首页提供 `XDButton`、`XDAlert` 和 `XDBottomSheet` 独立体验页。Bottom Sheet 页面覆盖自适应/固定/比例高度、宽度策略、滚动协调、键盘避让、交互锁定，以及同一 Sheet 内二级页面返回；Alert 页面覆盖标准形态、附加控件、插画、关闭方式，以及默认自适应和强制文本对齐示例。
 
 ## 面向 Agent 的 API 指南
 

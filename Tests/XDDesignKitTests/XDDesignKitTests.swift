@@ -171,6 +171,42 @@ final class XDDesignKitTests: XCTestCase {
         XCTAssertFalse(handle.isPresented)
     }
 
+    func testBottomSheetReportsMissingSceneWithoutPresenting() {
+        let handle = XDBottomSheet.show(on: UIViewController(), contentView: UIView())
+
+        XCTAssertEqual(handle.presentationFailure, .presenterNotAttachedToScene)
+        XCTAssertFalse(handle.isPresented)
+        XCTAssertFalse(handle.isPending)
+    }
+
+    func testBottomSheetHeightAndWidthFactoriesExposeConfirmedVariants() {
+        XCTAssertEqual(XDBottomSheetHeight.content, .content)
+        XCTAssertNotEqual(XDBottomSheetHeight.content(maximum: 300), .content)
+        XCTAssertNotEqual(XDBottomSheetHeight.fixed(300), .fraction(0.5))
+        XCTAssertEqual(XDBottomSheetWidth.fullWidth, .fullWidth)
+        XCTAssertNotEqual(XDBottomSheetWidth.horizontalInsets(16), .centered(maximumWidth: 320))
+    }
+
+    func testBottomSheetThemeCanBeOverriddenThroughThemeComponents() throws {
+        let bottomSheet = XDBottomSheetTheme.default.merging(componentColors: [
+            XDColorToken(rawValue: "bottomSheet.surface"): XDThemeColor(light: .red, dark: .blue)
+        ])
+        let theme = XDTheme(
+            identifier: "xd.bottom-sheet-metric-test",
+            displayName: "Bottom Sheet Test",
+            colors: [:],
+            components: .default.merging(bottomSheet: bottomSheet),
+            basedOn: .defaultTheme
+        )
+        let context = try XDThemeContext(initialTheme: theme)
+        let resolved = context.resolver(compatibleWith: .init(userInterfaceStyle: .light))
+
+        XCTAssertEqual(
+            context.currentTheme.components.bottomSheet.color(for: bottomSheet.surfaceBackgroundToken, resolver: resolved).hexString,
+            "#FF0000"
+        )
+    }
+
     func testAlertTextAlignmentUsesVisualWidthInsteadOfFontLineHeight() {
         let attributes: [NSAttributedString.Key: Any] = [
             .font: UIFont.systemFont(ofSize: 16),

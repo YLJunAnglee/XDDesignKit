@@ -158,7 +158,7 @@ XDThemeable UIKit Component
 bash Scripts/verify.sh
 ```
 
-当前 `0.5.0` 验证基线已通过 `bash Scripts/verify.sh` 刷新：56 tests、0 failures，严格并发检查、警告即错误构建和 Demo 构建均通过。
+2026-07-29 完整验证：组件库与 Demo 的严格并发、警告即错误构建均通过；83 个测试全部通过。Demo Test Target 已改为由 Demo App 承载，UIKit 控件事件测试可在有效的 `UIApplication` 生命周期中执行。Bottom Sheet 宽度回归覆盖横屏窗口变化以及横向 Safe Area 下的全宽、留边和居中策略。
 
 ## 下一阶段方向
 
@@ -173,7 +173,8 @@ bash Scripts/verify.sh
 两个按需建设的架构入口：
 
 - 数字角标进入多个组件前，实现独立 `XDBadgeView` 和通用挂载边界。
-- Toast/Sheet 开始前，复用或扩展现有 scene-owned Alert Overlay Coordinator。
+- Toast 开始前，复用或扩展现有 scene-owned Alert Overlay Coordinator。
+- `XDBottomSheet` 1.0 已收口：任意 `UIView` / `UIViewController` 内容承载、内容/固定/比例高度、宽度策略、键盘与安全区、遮罩和下拉关闭、唯一滚动区自动仲裁、多滚动区显式指定、Scene 串行队列、Theme 与 Handle 生命周期；Demo 已覆盖高度、宽度、滚动、键盘、交互锁定和同 Sheet 二级页面返回。后续真实业务接入属于消费侧验证，不在没有新通用需求时继续扩张 1.0 API。
 
 ## 下次继续前先读
 
@@ -190,9 +191,10 @@ bash Scripts/verify.sh
 - `Sources/XDDesignKit/Components/Alert/DESIGN.md`。
 - `Sources/XDDesignKit/Components/Alert/XDAlert.swift`。
 - `Sources/XDDesignKit/Components/Alert/XDAlertOverlayCoordinator.swift`。
+- `Sources/XDDesignKit/Components/BottomSheet/DESIGN.md`。
 - `Examples/XDDesignKitDemo/XDDesignKitDemo/DemoViewController.swift`。
 
-当前默认续接点：**先完成 XDAlert 0.5.x 的剩余人工矩阵，同时开始 XDLabel 设计；真实业务接入后再收敛 1.0 API。**
+当前 Bottom Sheet 状态：**1.0 公共签名和基础行为已收口。下一步可在业务项目接入“挖空 → AI 快速挖空 → 返回”进行消费侧验证；多档 Detent、内置导航和其他新能力只有出现多个一致业务需求后才另行设计。**
 
 ## 文档维护规则
 

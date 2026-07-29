@@ -19,6 +19,7 @@ let package = Package(
             exclude: [
                 "Components/Button/DESIGN.md",
                 "Components/Alert/DESIGN.md",
+                "Components/BottomSheet/DESIGN.md",
                 "Theme/TYPOGRAPHY.md"
             ],
             resources: [
