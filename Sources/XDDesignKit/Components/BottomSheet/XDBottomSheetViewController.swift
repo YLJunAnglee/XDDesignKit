@@ -23,6 +23,9 @@ final class XDBottomSheetViewController: UIViewController, XDThemeable, UIGestur
     private var lastMeasuredContentWidth: CGFloat?
     private var lastLayoutSignature: LayoutSignature?
     private var contentMeasurementIsInvalid = true
+    /// `contentViewController.view` 首次加载时可能同步改变 preferredContentSize；
+    /// 此时 BottomSheet 自身的约束尚未创建，不能提前执行布局刷新。
+    private var hasCompletedViewSetup = false
     private var hasAnimatedPresentation = false
     private var isDismissingSheet = false
     private var hasNotifiedWillDismiss = false
@@ -110,7 +113,8 @@ final class XDBottomSheetViewController: UIViewController, XDThemeable, UIGestur
     override func preferredContentSizeDidChange(forChildContentContainer container: UIContentContainer) {
         super.preferredContentSizeDidChange(forChildContentContainer: container)
         contentMeasurementIsInvalid = true
-        invalidateLayout(animated: hasAnimatedPresentation)
+        guard hasCompletedViewSetup else { return }
+        invalidateLayout(animated: configuration.animatesContentSizeChanges)
     }
 
     override func accessibilityPerformEscape() -> Bool {
@@ -227,6 +231,7 @@ final class XDBottomSheetViewController: UIViewController, XDThemeable, UIGestur
         contentViewController.didMove(toParent: self)
         dimmingView.alpha = 0
         surfaceView.alpha = 0
+        hasCompletedViewSetup = true
     }
 
     private func updateSurfaceLayout(forceContentMeasurement: Bool = false) {

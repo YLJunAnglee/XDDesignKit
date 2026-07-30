@@ -55,17 +55,21 @@ public struct XDBottomSheetWidth: Hashable {
 public struct XDBottomSheetConfiguration {
     public let height: XDBottomSheetHeight
     public let width: XDBottomSheetWidth
+    /// Whether changes to a child controller's preferred content size animate the sheet height.
+    public let animatesContentSizeChanges: Bool
     public let allowsBackgroundDismissal: Bool
     public let allowsSwipeDismissal: Bool
 
     public init(
         height: XDBottomSheetHeight = .content,
         width: XDBottomSheetWidth = .fullWidth,
+        animatesContentSizeChanges: Bool = true,
         allowsBackgroundDismissal: Bool = true,
         allowsSwipeDismissal: Bool = true
     ) {
         self.height = height
         self.width = width
+        self.animatesContentSizeChanges = animatesContentSizeChanges
         self.allowsBackgroundDismissal = allowsBackgroundDismissal
         self.allowsSwipeDismissal = allowsSwipeDismissal
     }

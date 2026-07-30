@@ -3,6 +3,13 @@ import XCTest
 
 @MainActor
 final class XDBottomSheetTests: XCTestCase {
+    func testConfigurationDefaultsToAnimatingContentSizeChanges() {
+        XCTAssertTrue(XDBottomSheetConfiguration().animatesContentSizeChanges)
+        XCTAssertFalse(
+            XDBottomSheetConfiguration(animatesContentSizeChanges: false).animatesContentSizeChanges
+        )
+    }
+
     func testContentHeightIsEstablishedBeforeFirstLayoutAndCanBeInvalidated() {
         let contentController = UIViewController()
         let content = UIView()

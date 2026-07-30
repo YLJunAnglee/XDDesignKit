@@ -136,12 +136,14 @@ public enum XDBottomSheet {
 public struct XDBottomSheetConfiguration {
     public let height: XDBottomSheetHeight
     public let width: XDBottomSheetWidth
+    public let animatesContentSizeChanges: Bool
     public let allowsBackgroundDismissal: Bool
     public let allowsSwipeDismissal: Bool
 
     public init(
         height: XDBottomSheetHeight = .content,
         width: XDBottomSheetWidth = .fullWidth,
+        animatesContentSizeChanges: Bool = true,
         allowsBackgroundDismissal: Bool = true,
         allowsSwipeDismissal: Bool = true
     )
@@ -285,7 +287,7 @@ Handle 是轻量控制接口，不暴露容器 Controller。
 2. `.content` 下有效的 `preferredContentSize.height`。
 3. 当前宽度下对 Child 根 View 进行 Auto Layout fitting。
 
-内容 Controller 修改 `preferredContentSize` 时，容器应自动响应 UIKit 的 Child Content Container 通知。其他约束变化由业务调用 `invalidateLayout(animated:)`。
+内容 Controller 修改 `preferredContentSize` 时，容器应自动响应 UIKit 的 Child Content Container 通知；由 `animatesContentSizeChanges` 决定该次高度更新是否动画，默认开启。其他约束变化由业务调用 `invalidateLayout(animated:)`。
 
 ### 动态高度
 

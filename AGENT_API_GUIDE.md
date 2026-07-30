@@ -264,7 +264,7 @@ NSLayoutConstraint.activate([
 handle.setPrimaryScrollView(tableView)
 ```
 
-内容增删、`preferredContentSize` 以外的约束变化，或 Sheet 内页面完成切换后调用 `handle.invalidateLayout()`。同一业务流程的“挖空 → AI 快速挖空 → 返回”应在一个业务内容 Controller 内自行切换页面，不要叠加多个 Sheet。
+内容 Controller 的 `preferredContentSize` 变化会自动重算高度，默认带标准动效；需要立即更新时，在 Configuration 中传 `animatesContentSizeChanges: false`。内容增删、`preferredContentSize` 以外的约束变化，或 Sheet 内页面完成切换后调用 `handle.invalidateLayout()`。同一业务流程的“挖空 → AI 快速挖空 → 返回”应在一个业务内容 Controller 内自行切换页面，不要叠加多个 Sheet。
 
 ```swift
 // 业务内容完成页面切换、添加列表项或改动约束后
