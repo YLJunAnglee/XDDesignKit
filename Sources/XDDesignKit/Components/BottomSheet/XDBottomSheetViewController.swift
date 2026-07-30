@@ -43,6 +43,7 @@ final class XDBottomSheetViewController: UIViewController, XDThemeable, UIGestur
 
     var isPendingPresentation = true
     var isActuallyPresented: Bool { presentingViewController != nil && !isBeingDismissed && !isDismissingSheet }
+    var isPresentingOverlay: Bool { presentedViewController != nil }
     var isInteractiveDismissalEnabled = true {
         didSet { panGesture.isEnabled = isInteractiveDismissalEnabled }
     }
@@ -153,6 +154,24 @@ final class XDBottomSheetViewController: UIViewController, XDThemeable, UIGestur
     }
 
     func setPrimaryScrollView(_ scrollView: UIScrollView?) { explicitPrimaryScrollView = scrollView }
+
+    @discardableResult
+    func presentOverlay(
+        _ viewController: UIViewController,
+        animated: Bool,
+        completion: (() -> Void)?
+    ) -> Bool {
+        guard isActuallyPresented,
+              isPendingPresentation == false,
+              viewIfLoaded?.window != nil,
+              transitionCoordinator == nil,
+              presentedViewController == nil,
+              viewController.presentingViewController == nil,
+              viewController.parent == nil else { return false }
+        viewController.modalPresentationStyle = .overFullScreen
+        present(viewController, animated: animated, completion: completion)
+        return true
+    }
 
     func cancelPendingPresentation() {
         guard isPendingPresentation, presentingViewController == nil else { return }

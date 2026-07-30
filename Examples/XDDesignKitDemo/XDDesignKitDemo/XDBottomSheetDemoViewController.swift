@@ -57,7 +57,8 @@ final class XDBottomSheetDemoViewController: UIViewController, XDThemeable {
         ])
         addSection("交互", cases: [
             ("输入框与键盘避让", .secondary, { [weak self] in self?.showKeyboardContent() }),
-            ("禁止手势和蒙层关闭", .outline, { [weak self] in self?.showLockedSheet() })
+            ("禁止手势和蒙层关闭", .outline, { [weak self] in self?.showLockedSheet() }),
+            ("全屏覆盖页 · 返回原 Sheet", .primary, { [weak self] in self?.showOverlayFlow() })
         ])
         let note = UILabel()
         note.numberOfLines = 0
@@ -149,6 +150,24 @@ final class XDBottomSheetDemoViewController: UIViewController, XDThemeable {
         content.dismissSheet = { [weak self] in self?.activeHandle?.dismiss() }
     }
 
+    private func showOverlayFlow() {
+        let content = XDBottomSheetOverlayLauncherContentController()
+        activeHandle = XDBottomSheet.show(
+            on: self,
+            contentViewController: content,
+            events: .init(onDidDismiss: { [weak self] _ in self?.activeHandle = nil })
+        )
+        content.presentOverlay = { [weak self] in
+            let detail = XDBottomSheetOverlayDemoViewController()
+            let navigation = UINavigationController(rootViewController: detail)
+            detail.closeOverlay = { [weak navigation] in
+                navigation?.dismiss(animated: true)
+            }
+            _ = self?.activeHandle?.presentOverlay(navigation)
+        }
+        content.dismissSheet = { [weak self] in self?.activeHandle?.dismiss() }
+    }
+
     private func card(_ content: UIView) -> UIView {
         let container = UIView()
         container.layer.cornerRadius = XDRadius.md
@@ -227,6 +246,53 @@ private final class XDBottomSheetSimpleContentController: XDBottomSheetDemoConte
         stack.addArrangedSubview(titleLabel(contentTitle))
         stack.addArrangedSubview(messageLabel(message))
         stack.addArrangedSubview(actionButton("关闭", style: .outline) { [weak self] in self?.dismissSheet?() })
+    }
+}
+
+private final class XDBottomSheetOverlayLauncherContentController: XDBottomSheetDemoContentController {
+    var presentOverlay: (() -> Void)?
+    var dismissSheet: (() -> Void)?
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        stack.addArrangedSubview(titleLabel("保留当前 Sheet"))
+        stack.addArrangedSubview(messageLabel("全屏页由 Sheet 内部完整容器展示；返回后仍是同一个 Sheet 实例。"))
+        stack.addArrangedSubview(actionButton("打开全屏页") { [weak self] in self?.presentOverlay?() })
+        stack.addArrangedSubview(actionButton("关闭 Sheet", style: .text) { [weak self] in self?.dismissSheet?() })
+    }
+}
+
+private final class XDBottomSheetOverlayDemoViewController: UIViewController, XDThemeable {
+    var closeOverlay: (() -> Void)?
+    private let messageLabel = UILabel()
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "全屏业务页"
+        messageLabel.text = "关闭后会直接恢复原 Sheet，内容和选择状态不会重建。"
+        messageLabel.numberOfLines = 0
+        messageLabel.textAlignment = .center
+        let button = XDButton(style: .primary, size: .large)
+        button.setTitle("返回原 Sheet", for: .normal)
+        button.onTap = { [weak self] in self?.closeOverlay?() }
+        let stack = UIStackView(arrangedSubviews: [messageLabel, button])
+        stack.axis = .vertical
+        stack.spacing = XDSpacing.lg
+        view.addSubview(stack)
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            stack.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: XDSpacing.lg),
+            stack.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -XDSpacing.lg),
+            stack.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor)
+        ])
+        xdRegisterThemeUpdates()
+        xdApplyTheme()
+    }
+
+    func xdApplyTheme() {
+        view.backgroundColor = xdThemeColor(.backgroundPrimary)
+        messageLabel.font = xdThemeFont(.body)
+        messageLabel.textColor = xdThemeColor(.textSecondary)
     }
 }
 

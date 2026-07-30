@@ -2,7 +2,7 @@
 
 本文是 `XDBottomSheet` 的实现前设计基线，记录已经确认的组件边界、公共 API 草案、内部架构、交互契约和验收范围。
 
-- 当前状态：1.0 基础能力已收口；多档 Detent 不在 1.0 范围内
+- 当前状态：1.0 基础能力已收口；支持临时全屏覆盖页；多档 Detent 不在 1.0 范围内
 - 最低系统：iOS 14
 - 更新时间：2026-07-29
 
@@ -215,6 +215,7 @@ public struct XDBottomSheetEvents {
 public final class XDBottomSheetHandle {
     public var isPresented: Bool { get }
     public var isPending: Bool { get }
+    public var isPresentingOverlay: Bool { get }
     public var presentationFailure: XDBottomSheetPresentationFailure? { get }
     public var isInteractiveDismissalEnabled: Bool { get set }
 
@@ -226,6 +227,13 @@ public final class XDBottomSheetHandle {
     public func cancelPendingPresentation()
     public func invalidateLayout(animated: Bool = true)
     public func setPrimaryScrollView(_ scrollView: UIScrollView?)
+
+    @discardableResult
+    public func presentOverlay(
+        _ viewController: UIViewController,
+        animated: Bool = true,
+        completion: (() -> Void)? = nil
+    ) -> Bool
 }
 ```
 
@@ -236,6 +244,7 @@ Handle 是轻量控制接口，不暴露容器 Controller。
 - `invalidateLayout` 重新测量当前页面，用于内容增删或 Sheet 内页面切换。
 - `isInteractiveDismissalEnabled` 动态控制遮罩、下拉和无障碍 Escape 等交互关闭，不影响代码主动关闭。
 - 简单内容由组件自动协调滚动；多个滚动区域并存时，调用方通过 `setPrimaryScrollView` 明确主纵向滚动区域。
+- `presentOverlay` 从内部完整 Sheet 容器以 `.overFullScreen` 展示任意业务 Controller；退出覆盖页后恢复同一 Sheet 实例，不重新进入 Scene 队列，也不触发 Sheet 关闭事件。覆盖页的导航结构和转场仍由业务方负责。
 
 实现阶段需要进一步判断是否把 pending/presented 状态收敛为只读状态值，避免多个 Bool 出现瞬时歧义。
 

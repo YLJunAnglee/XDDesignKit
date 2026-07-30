@@ -59,7 +59,7 @@ button.setIcon(.arrowForward, placement: .trailing)
 | 列表/卡片完成状态，本地立即切换 | `XDCheckboxButton(isSelected:)` + `onValueChanged` |
 | 列表/卡片完成状态，接口成功后才切换 | `selectionBehavior: .requiresConfirmation` + `onValueChangeRequest` |
 | 列表/卡片更多操作 | `XDMoreButton()` + `onTap` |
-| 页面、卡片或自定义弹层的关闭入口 | `XDCloseButton()` + `onTap` |
+| 页面、卡片或自定义弹层的关闭入口 | `XDCloseButton()` + `onTap`；需要 28pt 视觉图标时用 `XDCloseButton(visualSize: .large)` |
 
 ```swift
 let checkbox = XDCheckboxButton(isSelected: item.isCompleted)
@@ -80,11 +80,11 @@ confirmedCheckbox.onValueChangeRequest = { desiredValue in
 let more = XDMoreButton()
 more.onTap = { showMoreActions(for: item) }
 
-let close = XDCloseButton()
+let close = XDCloseButton(visualSize: .large)
 close.onTap = { dismiss(animated: true) }
 ```
 
-三者默认布局和点击区均为 44pt，视觉图标为居中的 24pt；不要把它们约束为 24pt 或让相邻可点击控件侵入该区域。不传文字、不提供通用 Style 或 Loading。需要场景主题隔离时，在初始化时传入 `themeContext`。
+三者默认布局和点击区均为 44pt。`XDCloseButton` 默认视觉图标为居中的 24pt，需要与 28pt 业务图标对齐时使用 `visualSize: .large`；无论视觉尺寸为何都不要把点击区约束为视觉尺寸，也不要让相邻可点击控件侵入该区域。不传文字、不提供通用 Style 或 Loading。需要场景主题隔离时，在初始化时传入 `themeContext`。
 
 `XDCheckboxButton` 默认 `.immediate`，点击后马上更新并发送 `.valueChanged` / `onValueChanged`。`.requiresConfirmation` 点击后只调用 `onValueChangeRequest`，期间 `isPending == true` 且不可重复点击；成功调用 `resolveSelectionChange(to:)`（此时才发送状态变化通知），失败调用 `cancelSelectionChange()` 并保留原状态。复用列表单元格前先取消未完成请求或确保异步回调仍对应同一条数据。
 
@@ -199,6 +199,7 @@ Alert 必须从已进入 `UIWindowScene` 的当前 `UIViewController` 展示。�
 | 一次性的简单操作内容 | `contentView:` |
 | 列表、输入、异步状态或复杂约束 | `contentViewController:` |
 | Sheet 内“一级 → 二级 → 返回” | 一个业务 `UIViewController` 内自行切换，再调用 `invalidateLayout()` |
+| Sheet → 全屏业务页 → 返回原 Sheet | `handle.presentOverlay(...)`，全屏页正常 `dismiss` |
 | 连续但彼此独立的弹层 | `dismiss(animated:completion:)` 后展示下一层；同 Scene 也会自动串行排队 |
 
 ```swift
@@ -271,9 +272,23 @@ handle.setPrimaryScrollView(tableView)
 handle.invalidateLayout()
 ```
 
+需要从 Sheet 临时进入全屏业务页，并在退出后恢复同一个 Sheet 实例时，使用 `presentOverlay`。组件会从内部完整 Sheet 容器展示页面并强制使用 `.overFullScreen`，因此原 Sheet 的内容、分页缓存和选择状态不会销毁。业务页按普通方式调用 `dismiss(animated:)` 返回；不要先关闭 Sheet，也不要从业务内容子 Controller 自行 `present`。
+
+```swift
+let detail = DetailViewController()
+let navigation = UINavigationController(rootViewController: detail)
+
+guard handle.presentOverlay(navigation) else { return }
+
+// DetailViewController 内
+navigationController?.dismiss(animated: true)
+```
+
+同一时间只允许一个覆盖页。可通过 `handle.isPresentingOverlay` 判断状态；Sheet 尚未完成展示、正在关闭、已有覆盖页，或目标 Controller 已属于其他层级时，`presentOverlay` 返回 `false`。覆盖页不是新的 Sheet，不参与 Sheet 展示队列，也不会触发 Sheet 的 `onWillDismiss/onDidDismiss`。
+
 ### 关闭、事件与展示状态
 
-`handle.dismiss(animated:completion:)` 主动关闭；`isInteractiveDismissalEnabled` 可运行时同时开关遮罩点击、下拉和无障碍 Escape，不影响代码主动关闭；`cancelPendingPresentation()` 只取消尚未展示的排队请求。`onWillDismiss` / `onDidDismiss` 每次展示最多各触发一次，外部或系统关闭使用 `.system`。展示必须从已进入当前 `UIWindowScene` 的 Controller 发起；失败可读取 `presentationFailure`。
+`handle.dismiss(animated:completion:)` 主动关闭；`presentOverlay` 从内部完整容器展示临时全屏业务页；`isInteractiveDismissalEnabled` 可运行时同时开关遮罩点击、下拉和无障碍 Escape，不影响代码主动关闭；`cancelPendingPresentation()` 只取消尚未展示的排队请求。`onWillDismiss` / `onDidDismiss` 每次展示最多各触发一次，外部或系统关闭使用 `.system`。展示必须从已进入当前 `UIWindowScene` 的 Controller 发起；失败可读取 `presentationFailure`。
 
 ```swift
 handle.isInteractiveDismissalEnabled = false // 提交中，锁定交互关闭

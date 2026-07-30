@@ -1375,6 +1375,15 @@ final class XDDesignKitTests: XCTestCase {
         XCTAssertEqual(button.accessibilityLabel, "关闭")
     }
 
+    func testCloseButtonLargeVisualSizePreservesMinimumHitTarget() {
+        let button = XDCloseButton(visualSize: .large)
+        button.frame = CGRect(x: 0, y: 0, width: 44, height: 44)
+        button.layoutIfNeeded()
+
+        XCTAssertEqual(button.intrinsicContentSize, CGSize(width: 44, height: 44))
+        XCTAssertEqual(button.subviews.first?.frame, CGRect(x: 8, y: 8, width: 28, height: 28))
+    }
+
     func testSpecialIconButtonsReserveMinimumHitTargetsAroundCompactIcons() {
         let checkbox = XDCheckboxButton()
         let more = XDMoreButton()

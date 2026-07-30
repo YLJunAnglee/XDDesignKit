@@ -189,6 +189,54 @@ final class XDBottomSheetTests: XCTestCase {
         XCTAssertEqual(callbacks, ["will:system", "did:system"])
     }
 
+    func testOverlayPresentationRequiresAnActiveSheet() {
+        let controller = makeController(content: UIViewController())
+        controller.loadViewIfNeeded()
+
+        XCTAssertFalse(
+            controller.presentOverlay(UIViewController(), animated: false, completion: nil)
+        )
+    }
+
+    func testOverlayPresentationPreservesSheetAndRejectsDuplicates() {
+        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 390, height: 844))
+        let host = UIViewController()
+        window.rootViewController = host
+        window.makeKeyAndVisible()
+
+        let sheetPresented = expectation(description: "Sheet presented")
+        let controller = makeController(
+            content: UIViewController(),
+            events: .init(onDidPresent: { sheetPresented.fulfill() })
+        )
+        host.present(controller, animated: false)
+        wait(for: [sheetPresented], timeout: 1)
+
+        let overlay = UIViewController()
+        let overlayPresented = expectation(description: "Overlay presented")
+        XCTAssertTrue(
+            controller.presentOverlay(
+                overlay,
+                animated: false,
+                completion: { overlayPresented.fulfill() }
+            )
+        )
+        wait(for: [overlayPresented], timeout: 1)
+        XCTAssertEqual(overlay.modalPresentationStyle, .overFullScreen)
+        XCTAssertTrue(controller.presentedViewController === overlay)
+        XCTAssertTrue(controller.isPresentingOverlay)
+        XCTAssertFalse(
+            controller.presentOverlay(UIViewController(), animated: false, completion: nil)
+        )
+
+        let overlayDismissed = expectation(description: "Overlay dismissed")
+        overlay.dismiss(animated: false) { overlayDismissed.fulfill() }
+        wait(for: [overlayDismissed], timeout: 1)
+        XCTAssertTrue(controller.presentingViewController === host)
+        XCTAssertFalse(controller.isPresentingOverlay)
+        window.isHidden = true
+    }
+
     private func makeController(
         content: UIViewController,
         configuration: XDBottomSheetConfiguration = .init(),

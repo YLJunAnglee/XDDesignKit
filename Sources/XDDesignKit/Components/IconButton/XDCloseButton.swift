@@ -1,5 +1,21 @@
 import UIKit
 
+public enum XDCloseButtonVisualSize: Sendable {
+    /// 默认的 24pt 关闭图标。
+    case standard
+    /// 较大的 28pt 关闭图标；点击区仍由主题最小点击区控制。
+    case large
+
+    fileprivate var iconSize: CGSize {
+        switch self {
+        case .standard:
+            return CGSize(width: 24, height: 24)
+        case .large:
+            return CGSize(width: 28, height: 28)
+        }
+    }
+}
+
 /// A compact button that closes or dismisses its surrounding content.
 @MainActor
 public final class XDCloseButton: UIControl, XDThemeable {
@@ -7,14 +23,18 @@ public final class XDCloseButton: UIControl, XDThemeable {
     public private(set) var xdThemeContext: XDThemeContext
 
     private let imageView = UIImageView()
-    private let visualIconSize = CGSize(width: 24, height: 24)
+    private let visualIconSize: CGSize
 
     public override var isEnabled: Bool {
         didSet { updatePresentation() }
     }
 
-    public init(themeContext: XDThemeContext = XDThemeManager.shared.globalContext) {
+    public init(
+        themeContext: XDThemeContext = XDThemeManager.shared.globalContext,
+        visualSize: XDCloseButtonVisualSize = .standard
+    ) {
         self.xdThemeContext = themeContext
+        self.visualIconSize = visualSize.iconSize
         super.init(frame: .zero)
         setup()
         xdRegisterThemeUpdates()
@@ -23,13 +43,14 @@ public final class XDCloseButton: UIControl, XDThemeable {
 
     public required init?(coder: NSCoder) {
         self.xdThemeContext = XDThemeManager.shared.globalContext
+        self.visualIconSize = XDCloseButtonVisualSize.standard.iconSize
         super.init(coder: coder)
         setup()
         xdRegisterThemeUpdates()
         xdApplyTheme()
     }
 
-    /// The control reserves the theme's minimum hit target; its visible icon remains 24 points.
+    /// The control reserves the theme's minimum hit target independently of its visible icon size.
     public override var intrinsicContentSize: CGSize {
         xdThemeContext.currentTheme.components.button.minimumHitTargetSize
     }
