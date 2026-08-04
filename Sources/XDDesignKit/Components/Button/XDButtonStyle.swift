@@ -9,9 +9,10 @@ public struct XDButtonStyle: RawRepresentable, Hashable, Sendable {
     public static let brand = XDButtonStyle(rawValue: "brand")
     public static let secondary = XDButtonStyle(rawValue: "secondary")
     public static let outline = XDButtonStyle(rawValue: "outline")
+    public static let outlineTransparent = XDButtonStyle(rawValue: "outlineTransparent")
     public static let text = XDButtonStyle(rawValue: "text")
     public static let gradient = XDButtonStyle(rawValue: "gradient")
-    public static let allCases: [XDButtonStyle] = [.primary, .brand, .secondary, .outline, .text, .gradient]
+    public static let allCases: [XDButtonStyle] = [.primary, .brand, .secondary, .outline, .outlineTransparent, .text, .gradient]
 }
 
 /// Extensible button size identifiers. A theme supplies the metric for each size.

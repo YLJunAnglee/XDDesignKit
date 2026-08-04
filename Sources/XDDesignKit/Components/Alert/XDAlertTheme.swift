@@ -118,6 +118,7 @@ public struct XDAlertTheme: Sendable {
     public func buttonStyle(for appearance: XDAlertActionAppearance) -> XDButtonStyle {
         switch appearance {
         case .outlined: return .outline
+        case .outlinedTransparent: return .outlineTransparent
         case .text: return .text
         default: return .primary
         }

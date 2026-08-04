@@ -145,7 +145,7 @@ final class XDDesignKitTests: XCTestCase {
         let text = XDAlertAction.text("稍后处理")
 
         XCTAssertEqual(cancel.role, .cancel)
-        XCTAssertEqual(cancel.appearance, .outlined)
+        XCTAssertEqual(cancel.appearance, .outlinedTransparent)
         XCTAssertEqual(primary.role, .normal)
         XCTAssertEqual(primary.appearance, .filled)
         XCTAssertEqual(destructive.role, .destructive)
@@ -897,17 +897,35 @@ final class XDDesignKitTests: XCTestCase {
             context.currentTheme.components.button
                 .appearance(for: .outline, state: .normal)
                 .borderWidthToken,
-            .hairline
+            .regular
         )
         XCTAssertEqual(
             outline.layer.borderWidth,
-            1 / max(outline.traitCollection.displayScale, 1),
+            1,
             accuracy: 0.001
         )
         XCTAssertEqual(outline.intrinsicContentSize.height, 48, accuracy: 0.5)
         XCTAssertEqual(outline.layer.cornerRadius, 8, accuracy: 0.001)
         XCTAssertEqual(outline.titleLabel!.font.pointSize, 16, accuracy: 0.001)
         XCTAssertEqual(outline.titleLabel!.font.fontName, "PingFangSC-Regular")
+    }
+
+    func testTransparentOutlineButtonUsesClearNormalBackgroundAndRegularBorder() throws {
+        let context = try XDThemeContext(initialTheme: .defaultTheme)
+        let button = XDButton(style: .outlineTransparent, size: .large, themeContext: context)
+
+        XCTAssertEqual(button.backgroundColor, .clear)
+        XCTAssertEqual(button.layer.borderWidth, 1, accuracy: 0.001)
+        XCTAssertEqual(
+            context.currentTheme.components.button
+                .appearance(for: .outlineTransparent, state: .normal)
+                .borderWidthToken,
+            .regular
+        )
+        XCTAssertEqual(
+            context.currentTheme.components.alert.buttonStyle(for: .outlinedTransparent),
+            .outlineTransparent
+        )
     }
 
     func testButtonPrimaryAndOutlineColorsStayFixedInDarkMode() {
@@ -1351,6 +1369,64 @@ final class XDDesignKitTests: XCTestCase {
         XCTAssertTrue(button.isSelected)
         XCTAssertFalse(button.isPending)
         XCTAssertEqual(button.accessibilityValue, "已选中")
+    }
+
+    func testToggleMatchesSpecifiedVisualMetricsAndImmediateInteraction() throws {
+        let toggle = XDToggle()
+        var values: [Bool] = []
+        toggle.onValueChanged = { values.append($0) }
+
+        XCTAssertEqual(toggle.intrinsicContentSize, CGSize(width: 52, height: 44))
+        toggle.frame = CGRect(x: 0, y: 0, width: 52, height: 44)
+        toggle.layoutIfNeeded()
+        let track = try XCTUnwrap(toggle.subviews.first)
+        let thumb = try XCTUnwrap(track.subviews.first)
+        XCTAssertEqual(track.frame, CGRect(x: 0, y: 8, width: 52, height: 28))
+        XCTAssertEqual(thumb.frame, CGRect(x: 2, y: 2, width: 24, height: 24))
+        XCTAssertEqual(track.backgroundColor?.hexString, "#D9D9D9")
+        XCTAssertEqual(thumb.backgroundColor?.hexString, "#FFFFFF")
+        XCTAssertEqual(toggle.accessibilityValue, "已关闭")
+        toggle.sendActions(for: .touchUpInside)
+
+        XCTAssertTrue(toggle.isOn)
+        XCTAssertEqual(values, [true])
+        XCTAssertEqual(track.backgroundColor?.hexString, "#212121")
+        XCTAssertEqual(toggle.accessibilityValue, "已开启")
+    }
+
+    func testToggleWaitsForConfirmationAndCanCancelOrCommit() {
+        let toggle = XDToggle(isOn: true, selectionBehavior: .requiresConfirmation)
+        var requestedValues: [Bool] = []
+        var committedValues: [Bool] = []
+        toggle.onValueChangeRequest = { requestedValues.append($0) }
+        toggle.onValueChanged = { committedValues.append($0) }
+
+        toggle.sendActions(for: .touchUpInside)
+
+        XCTAssertTrue(toggle.isOn)
+        XCTAssertTrue(toggle.isPending)
+        XCTAssertEqual(requestedValues, [false])
+        XCTAssertTrue(committedValues.isEmpty)
+        XCTAssertEqual(toggle.accessibilityValue, "正在更新")
+
+        toggle.cancelValueChange()
+        XCTAssertTrue(toggle.isOn)
+        XCTAssertFalse(toggle.isPending)
+
+        toggle.sendActions(for: .touchUpInside)
+        toggle.resolveValueChange(to: false)
+
+        XCTAssertFalse(toggle.isOn)
+        XCTAssertFalse(toggle.isPending)
+        XCTAssertEqual(committedValues, [false])
+    }
+
+    func testToggleAccessibilityActivationRequiresAConfirmationHandler() {
+        let toggle = XDToggle(selectionBehavior: .requiresConfirmation)
+
+        XCTAssertFalse(toggle.accessibilityActivate())
+        XCTAssertFalse(toggle.isOn)
+        XCTAssertFalse(toggle.isPending)
     }
 
     func testMoreButtonInvokesTapHandler() {

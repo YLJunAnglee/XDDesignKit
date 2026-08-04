@@ -215,9 +215,14 @@ public extension XDButtonTheme {
             disabled: .init(backgroundToken: .backgroundDisabled, titleToken: .textTertiary, borderToken: .borderPrimary)
         )
         let outline = XDButtonStyleAppearance(
-            normal: .init(backgroundToken: fixedLight, titleToken: fixedDark, borderToken: fixedDark, borderWidthToken: .hairline),
-            highlighted: .init(backgroundToken: fixedLightHighlighted, titleToken: fixedDark, borderToken: fixedDark, borderWidthToken: .hairline),
-            disabled: .init(backgroundToken: fixedDisabledBackground, titleToken: fixedDisabledForeground, borderToken: fixedDisabledBorder, borderWidthToken: .hairline)
+            normal: .init(backgroundToken: fixedLight, titleToken: fixedDark, borderToken: fixedDark, borderWidthToken: .regular),
+            highlighted: .init(backgroundToken: fixedLightHighlighted, titleToken: fixedDark, borderToken: fixedDark, borderWidthToken: .regular),
+            disabled: .init(backgroundToken: fixedDisabledBackground, titleToken: fixedDisabledForeground, borderToken: fixedDisabledBorder, borderWidthToken: .regular)
+        )
+        let outlineTransparent = XDButtonStyleAppearance(
+            normal: .init(backgroundToken: nil, titleToken: fixedDark, borderToken: fixedDark, borderWidthToken: .regular),
+            highlighted: .init(backgroundToken: fixedLightHighlighted, titleToken: fixedDark, borderToken: fixedDark, borderWidthToken: .regular),
+            disabled: .init(backgroundToken: nil, titleToken: fixedDisabledForeground, borderToken: fixedDisabledBorder, borderWidthToken: .regular)
         )
         let text = XDButtonStyleAppearance(
             normal: .init(backgroundToken: nil, titleToken: .brandPrimary),
@@ -247,6 +252,7 @@ public extension XDButtonTheme {
                 .brand: brand,
                 .secondary: secondary,
                 .outline: outline,
+                .outlineTransparent: outlineTransparent,
                 .text: text,
                 .gradient: gradient
             ],

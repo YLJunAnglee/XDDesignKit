@@ -25,6 +25,7 @@ public struct XDAlertActionAppearance: RawRepresentable, Hashable, Sendable {
 
     public static let filled = XDAlertActionAppearance(rawValue: "filled")
     public static let outlined = XDAlertActionAppearance(rawValue: "outlined")
+    public static let outlinedTransparent = XDAlertActionAppearance(rawValue: "outlinedTransparent")
     public static let text = XDAlertActionAppearance(rawValue: "text")
 }
 
@@ -73,7 +74,7 @@ public struct XDAlertAction {
         XDAlertAction(
             title: title,
             role: .cancel,
-            appearance: .outlined,
+            appearance: .outlinedTransparent,
             automaticallyDismisses: automaticallyDismisses,
             handler: handler
         )

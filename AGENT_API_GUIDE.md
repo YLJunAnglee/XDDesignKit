@@ -2,7 +2,7 @@
 
 用于根据 UI 需求选择 XDDesignKit API。完整接入和架构说明见 `README.md`。
 
-当前可用业务组件有 `XDButton`、`XDCheckboxButton`、`XDMoreButton`、`XDCloseButton`、`XDAlert` 和 `XDBottomSheet`。不要假设存在 `XDLabel`、`XDTag`、`XDTextField` 等未实现组件。
+当前可用业务组件有 `XDButton`、`XDCheckboxButton`、`XDToggle`、`XDMoreButton`、`XDCloseButton`、`XDAlert` 和 `XDBottomSheet`。不要假设存在 `XDLabel`、`XDTag`、`XDTextField` 等未实现组件。
 
 本库面向 UIKit（iOS 14+），业务 Target 使用前先 `import XDDesignKit`。本页覆盖 XDDesignKit 特有的 UI 选择和约束，不重复 UIKit 继承 API。视觉以 `Examples/XDDesignKitDemo` 为准，精确签名以 `Sources/XDDesignKit` 为准；冲突时遵循源码并更新本页。
 
@@ -21,7 +21,8 @@ button.onTap = { submit() }
 | 高频主操作，固定深色底 | `.primary` |
 | 跟随品牌主题的主操作 | `.brand` |
 | 次要操作 | `.secondary` |
-| 白底描边 | `.outline` |
+| 白底描边（固定 1 pt） | `.outline` |
+| 透明底描边（固定 1 pt） | `.outlineTransparent` |
 | 低强调文字操作 | `.text` |
 | 营销渐变操作 | `.gradient` |
 | 大、中、小尺寸 | `.large` / `.medium` / `.small` |
@@ -87,6 +88,30 @@ close.onTap = { dismiss(animated: true) }
 三者默认布局和点击区均为 44pt。`XDCloseButton` 默认视觉图标为居中的 24pt，需要与 28pt 业务图标对齐时使用 `visualSize: .large`；无论视觉尺寸为何都不要把点击区约束为视觉尺寸，也不要让相邻可点击控件侵入该区域。不传文字、不提供通用 Style 或 Loading。需要场景主题隔离时，在初始化时传入 `themeContext`。
 
 `XDCheckboxButton` 默认 `.immediate`，点击后马上更新并发送 `.valueChanged` / `onValueChanged`。`.requiresConfirmation` 点击后只调用 `onValueChangeRequest`，期间 `isPending == true` 且不可重复点击；成功调用 `resolveSelectionChange(to:)`（此时才发送状态变化通知），失败调用 `cancelSelectionChange()` 并保留原状态。复用列表单元格前先取消未完成请求或确保异步回调仍对应同一条数据。
+
+## XDToggle
+
+用于设置项等二元开关。控件布局和点击区域为至少 `52 × 44 pt`，其中视觉轨道固定为居中的 `52 × 28 pt`：关闭为 `#D9D9D9`、开启为 `#212121`、滑块为白色；边框固定为无。不要将控件高度压缩为 28pt。
+
+```swift
+let toggle = XDToggle(isOn: settings.autoWordHollow)
+toggle.onValueChanged = { settings.autoWordHollow = $0 }
+```
+
+需要接口确认后再提交状态时，使用与 `XDCheckboxButton` 相同的确认模式：
+
+```swift
+let toggle = XDToggle(isOn: settings.autoWordHollow, selectionBehavior: .requiresConfirmation)
+toggle.onValueChangeRequest = { requestedValue in
+    save(requestedValue) { success in
+        success
+            ? toggle.resolveValueChange(to: requestedValue)
+            : toggle.cancelValueChange()
+    }
+}
+```
+
+`isOn` 或 `setOn(_:animated:)` 只刷新 UI，不发送 `.valueChanged`；用户操作或 `resolveValueChange(to:)` 成功提交时才发送。请求期间 `isPending == true`，组件阻止重复点击并使用禁用态透明度。
 
 ## XDAlert
 
@@ -160,7 +185,7 @@ accessory: .textInput(
 )
 ```
 
-自定义 Action 的 `role` 可选 `.normal` / `.cancel` / `.destructive`，`appearance` 可选 `.filled` / `.outlined` / `.text`。Action 和 Checkbox 标题不能为空；`maximumLength`、`.lines(n)` 和 `.height(h)` 必须为正数；`onLimitReached` 接收 `.maximumLength` 或 `.maximumHeight`。
+自定义 Action 的 `role` 可选 `.normal` / `.cancel` / `.destructive`，`appearance` 可选 `.filled` / `.outlined` / `.outlinedTransparent` / `.text`。`.cancel(...)` 默认使用透明描边外观；若需白底描边，显式使用 `.outlined`。Action 和 Checkbox 标题不能为空；`maximumLength`、`.lines(n)` 和 `.height(h)` 必须为正数；`onLimitReached` 接收 `.maximumLength` 或 `.maximumHeight`。
 
 需要复选或输入结果时，从 Action Context 获取：
 

@@ -57,7 +57,8 @@ Style 只定义视觉表现，不决定内容排列和外部宽度。
 内置 Style：
 
 - `primary`：项目高频深色实心按钮，固定 `#222222` 背景和白色前景。
-- `outline`：项目高频白底描边按钮，固定白色背景、`#222222` 前景和单物理像素边框。
+- `outline`：项目高频白底描边按钮，固定白色背景、`#222222` 前景和固定 `1 pt` 边框。
+- `outlineTransparent`：透明底描边按钮，固定 `#222222` 前景和固定 `1 pt` 边框；按下时使用浅灰反馈。
 - `brand`：跟随主题品牌色的实心按钮，保留原 `primary` 的换肤能力。
 - `secondary`：跟随主题的次级按钮。
 - `text`：透明背景的品牌文字按钮。
@@ -276,7 +277,7 @@ Loading 逻辑当前保留在 `XDButton`。只有职责明显膨胀时才提取 
 - 决定新增 `brand` 承接原 `primary` 的主题品牌色能力，避免丢失换肤场景。
 - 决定固定黑白色仅属于 Button Appearance，不加入全局颜色 Token，不影响其他组件。
 - 当前项目未启用暗黑模式自动反转，因此 `primary` 与 `outline` 在 Light/Dark Mode 下保持相同产品色。
-- 决定边框宽度进入每个状态的 Appearance；`outline` 使用 `hairline` Token，保证不同屏幕倍率下均为单物理像素。
+- 边框宽度进入每个状态的 Appearance；`outline` 使用 `regular` Token，固定为 `1 pt`，不随屏幕倍率变化。
 
 ## 版本记录
 

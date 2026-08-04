@@ -60,6 +60,9 @@ final class DemoViewController: UIViewController, XDThemeable {
         contentStack.addArrangedSubview(sectionTitle("Buttons"))
         contentStack.addArrangedSubview(buttonSamples())
 
+        contentStack.addArrangedSubview(sectionTitle("Toggles"))
+        contentStack.addArrangedSubview(toggleSamples())
+
         contentStack.addArrangedSubview(sectionTitle("Alerts"))
         contentStack.addArrangedSubview(alertSamples())
 
@@ -293,6 +296,62 @@ final class DemoViewController: UIViewController, XDThemeable {
         }
         stack.addArrangedSubview(openAlertDemo)
         return card(stack)
+    }
+
+    private func toggleSamples() -> UIView {
+        let stack = UIStackView()
+        stack.axis = .vertical
+        stack.spacing = XDSpacing.sm
+
+        let off = XDToggle()
+        let on = XDToggle(isOn: true)
+        let disabled = XDToggle(isOn: true)
+        disabled.isEnabled = false
+        let confirmation = XDToggle(selectionBehavior: .requiresConfirmation)
+        confirmation.onValueChangeRequest = { [weak confirmation] requestedValue in
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                confirmation?.resolveValueChange(to: requestedValue)
+            }
+        }
+
+        stack.addArrangedSubview(toggleRow(title: "关闭", detail: "点击后立即切换", toggle: off))
+        stack.addArrangedSubview(toggleRow(title: "开启", detail: "默认开启状态", toggle: on))
+        stack.addArrangedSubview(toggleRow(title: "禁用", detail: "开启且不可操作", toggle: disabled))
+        stack.addArrangedSubview(toggleRow(title: "确认模式", detail: "点击后模拟 0.6 秒接口确认", toggle: confirmation))
+        return card(stack)
+    }
+
+    private func toggleRow(title: String, detail: String, toggle: XDToggle) -> UIView {
+        let row = UIStackView()
+        row.axis = .horizontal
+        row.alignment = .center
+        row.spacing = XDSpacing.md
+
+        let textStack = UIStackView()
+        textStack.axis = .vertical
+        textStack.spacing = XDSpacing.xxs
+
+        let titleLabel = UILabel()
+        titleLabel.text = title
+        let detailLabel = UILabel()
+        detailLabel.text = detail
+        detailLabel.numberOfLines = 0
+        bindTheme { traitCollection in
+            titleLabel.font = XDFont.font(.bodyMedium, compatibleWith: traitCollection)
+            titleLabel.textColor = XDColor.color(.textPrimary, compatibleWith: traitCollection)
+            detailLabel.font = XDFont.font(.caption, compatibleWith: traitCollection)
+            detailLabel.textColor = XDColor.color(.textSecondary, compatibleWith: traitCollection)
+        }
+
+        textStack.addArrangedSubview(titleLabel)
+        textStack.addArrangedSubview(detailLabel)
+        row.addArrangedSubview(textStack)
+        row.addArrangedSubview(toggle)
+        NSLayoutConstraint.activate([
+            row.heightAnchor.constraint(greaterThanOrEqualToConstant: 44),
+            toggle.widthAnchor.constraint(equalToConstant: 52)
+        ])
+        return row
     }
 
     private func bottomSheetSamples() -> UIView {
