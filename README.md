@@ -157,6 +157,35 @@ close.onTap = { [weak self] in self?.dismiss(animated: true) }
 
 `XDCheckboxButton` 默认点击即切换。接口成功后才更新状态时，初始化传入 `selectionBehavior: .requiresConfirmation`：点击只触发 `onValueChangeRequest` 并进入 `isPending`，成功调用 `resolveSelectionChange(to:)`，失败调用 `cancelSelectionChange()`。
 
+## Toggle
+
+`XDToggle` 用于设置项等二元开关。控件承载 `52 × 44pt` 的布局和点击区域，视觉轨道为居中的 `52 × 28pt`；关闭轨道为 `#D9D9D9`，开启轨道为 `#212121`，滑块为白色。
+
+```swift
+let autoBlankToggle = XDToggle(isOn: settings.autoWordHollow)
+autoBlankToggle.onValueChanged = { isOn in
+    settings.autoWordHollow = isOn
+}
+```
+
+需要等接口成功后才提交状态时，使用确认模式。请求期间控件进入 `isPending` 并阻止重复点击；成功提交时才发送 `.valueChanged`，失败则保持原值：
+
+```swift
+let autoBlankToggle = XDToggle(
+    isOn: settings.autoWordHollow,
+    selectionBehavior: .requiresConfirmation
+)
+autoBlankToggle.onValueChangeRequest = { requestedValue in
+    saveAutoBlankSetting(requestedValue) { success in
+        success
+            ? autoBlankToggle.resolveValueChange(to: requestedValue)
+            : autoBlankToggle.cancelValueChange()
+    }
+}
+```
+
+业务需要根据本地缓存或接口结果刷新时，使用 `setOn(_:animated:)`；该方法只刷新 UI，不发送 `.valueChanged`。
+
 ## Alert
 
 `XDAlert` 是由当前 UIKit 页面显式展示的居中弹窗；它不会猜测全局窗口，因此可安全用于多 Scene 应用。所有视觉值都来自传入的 `XDThemeContext`。
