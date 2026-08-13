@@ -1,6 +1,6 @@
 # XDDesignKit 项目说明
 
-更新时间：2026-07-22
+更新时间：2026-08-13
 
 ## 项目定位
 
@@ -57,7 +57,8 @@ XDThemeable UIKit Component
 - `XDButton 0.3.2` 的主要功能和连续交互布局问题已验收，当前无已知功能故障。
 - `0.4.0` 字体基础已实现 PingFang SC 三字重、系统回退、fixed/dynamic、自定义 Token、非法配置校验和未知 Token 安全回退。
 - `0.5.0` 新增 `XDAlert`、`XDAlertTextAlignment`、组件内复选框资源及独立 Demo；新增 API 保持默认参数兼容，已覆盖自适应/强制对齐、Figma 尺寸、资源读取和点击热区测试。
-- 当前完整验证基线为 56 tests、0 failures；严格并发检查、警告即错误构建和 Demo 构建均已通过。
+- `0.5.7` 将 `XDButton` 的 `outline` 正常态和按下态边框颜色调整为固定 `#CDCFD4`，其余视觉状态保持不变。
+- 当前完整验证基线为 91 tests、0 failures；严格并发检查、警告即错误构建和 Demo 构建均已通过。
 
 ### XDAlert 当前停点
 
