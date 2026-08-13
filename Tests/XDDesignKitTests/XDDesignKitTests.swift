@@ -892,7 +892,7 @@ final class XDDesignKitTests: XCTestCase {
 
         XCTAssertEqual(outline.backgroundColor?.hexString, "#FFFFFF")
         XCTAssertEqual(outline.currentTitleColor.hexString, "#222222")
-        XCTAssertEqual(UIColor(cgColor: outline.layer.borderColor!).hexString, "#222222")
+        XCTAssertEqual(UIColor(cgColor: outline.layer.borderColor!).hexString, "#CDCFD4")
         XCTAssertEqual(
             context.currentTheme.components.button
                 .appearance(for: .outline, state: .normal)
@@ -916,6 +916,7 @@ final class XDDesignKitTests: XCTestCase {
 
         XCTAssertEqual(button.backgroundColor, .clear)
         XCTAssertEqual(button.layer.borderWidth, 1, accuracy: 0.001)
+        XCTAssertEqual(UIColor(cgColor: button.layer.borderColor!).hexString, "#222222")
         XCTAssertEqual(
             context.currentTheme.components.button
                 .appearance(for: .outlineTransparent, state: .normal)

@@ -21,7 +21,7 @@ button.onTap = { submit() }
 | 高频主操作，固定深色底 | `.primary` |
 | 跟随品牌主题的主操作 | `.brand` |
 | 次要操作 | `.secondary` |
-| 白底描边（固定 1 pt） | `.outline` |
+| 白底描边（`#CDCFD4`，固定 1 pt） | `.outline` |
 | 透明底描边（固定 1 pt） | `.outlineTransparent` |
 | 低强调文字操作 | `.text` |
 | 营销渐变操作 | `.gradient` |
