@@ -88,7 +88,7 @@ try XDThemeManager.shared.apply(.blueTheme)
 ```swift
 let darkButton = XDButton(style: .primary, size: .large) // #222222 底、白字
 let lightButton = XDButton(style: .outline, size: .large) // 白底、#222222 字、#CDCFD4 固定 1 pt 边框
-let transparentOutlineButton = XDButton(style: .outlineTransparent, size: .large) // 透明底、#222222 字和固定 1 pt 边框
+let transparentOutlineButton = XDButton(style: .outlineTransparent, size: .large) // 透明底、#222222 字、#CDCFD4 固定 1 pt 边框
 let themedButton = XDButton(style: .brand, size: .large) // 跟随品牌主题
 ```
 

@@ -12,6 +12,7 @@ public struct XDAlertTheme: Sendable {
     public let inputPlaceholderToken: XDColorToken
     public let checkboxSelectedToken: XDColorToken
     public let checkboxUnselectedToken: XDColorToken
+    public let cancelActionBorderToken: XDColorToken
     public let componentColors: [XDColorToken: XDThemeColor]
     public let titleStyle: XDFontStyle
     public let messageStyle: XDFontStyle
@@ -50,6 +51,7 @@ public struct XDAlertTheme: Sendable {
         inputPlaceholderToken: XDColorToken,
         checkboxSelectedToken: XDColorToken,
         checkboxUnselectedToken: XDColorToken,
+        cancelActionBorderToken: XDColorToken = XDColorToken(rawValue: "alert.action.cancel.border"),
         componentColors: [XDColorToken: XDThemeColor] = [:],
         titleStyle: XDFontStyle,
         messageStyle: XDFontStyle,
@@ -87,6 +89,7 @@ public struct XDAlertTheme: Sendable {
         self.inputPlaceholderToken = inputPlaceholderToken
         self.checkboxSelectedToken = checkboxSelectedToken
         self.checkboxUnselectedToken = checkboxUnselectedToken
+        self.cancelActionBorderToken = cancelActionBorderToken
         self.componentColors = componentColors
         self.titleStyle = titleStyle
         self.messageStyle = messageStyle
@@ -157,6 +160,7 @@ public struct XDAlertTheme: Sendable {
             inputPlaceholderToken: inputPlaceholderToken,
             checkboxSelectedToken: checkboxSelectedToken,
             checkboxUnselectedToken: checkboxUnselectedToken,
+            cancelActionBorderToken: cancelActionBorderToken,
             componentColors: self.componentColors.merging(componentColors, uniquingKeysWith: { _, new in new }),
             titleStyle: titleStyle,
             messageStyle: messageStyle,
@@ -223,6 +227,7 @@ public extension XDAlertTheme {
         let inputPlaceholder = XDColorToken(rawValue: "alert.input.placeholder")
         let checkboxSelected = XDColorToken(rawValue: "alert.checkbox.selected")
         let checkboxUnselected = XDColorToken(rawValue: "alert.checkbox.unselected")
+        let cancelActionBorder = XDColorToken(rawValue: "alert.action.cancel.border")
         return XDAlertTheme(
             overlayColorToken: overlay,
             cardBackgroundToken: .backgroundPrimary,
@@ -234,6 +239,7 @@ public extension XDAlertTheme {
             inputPlaceholderToken: inputPlaceholder,
             checkboxSelectedToken: checkboxSelected,
             checkboxUnselectedToken: checkboxUnselected,
+            cancelActionBorderToken: cancelActionBorder,
             componentColors: [
                 overlay: XDThemeColor(light: .black, dark: .black),
                 message: XDThemeColor(light: UIColor(hex: 0x484D54), dark: UIColor(hex: 0xD1D5DB)),
@@ -241,7 +247,8 @@ public extension XDAlertTheme {
                 inputBackground: XDThemeColor(light: UIColor(hex: 0xECEDEF), dark: UIColor(hex: 0x2B2F36)),
                 inputPlaceholder: XDThemeColor(light: UIColor(hex: 0xABB2B6), dark: UIColor(hex: 0x86909C)),
                 checkboxSelected: XDThemeColor(light: .black, dark: .white),
-                checkboxUnselected: XDThemeColor(light: UIColor(hex: 0xABB2B6), dark: UIColor(hex: 0xA9B0BB))
+                checkboxUnselected: XDThemeColor(light: UIColor(hex: 0xABB2B6), dark: UIColor(hex: 0xA9B0BB)),
+                cancelActionBorder: XDThemeColor(UIColor(hex: 0xCDCFD4))
             ],
             titleStyle: XDFontStyle(pointSize: 16, weight: .semibold, textStyle: .headline, lineHeight: 22),
             messageStyle: XDFontStyle(pointSize: 16, weight: .regular, textStyle: .body, lineHeight: 24),

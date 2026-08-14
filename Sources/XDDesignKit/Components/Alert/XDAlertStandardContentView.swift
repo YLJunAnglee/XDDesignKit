@@ -291,6 +291,13 @@ final class XDAlertStandardContentView: UIView, XDThemeable {
                 size: size,
                 themeContext: xdThemeContext
             )
+            if action.role == .cancel && action.appearance == .outlinedTransparent {
+                button.borderColorOverride = { state, resolver in
+                    guard !state.contains(.disabled) else { return nil }
+                    let alertTheme = resolver.theme.components.alert
+                    return alertTheme.color(for: alertTheme.cancelActionBorderToken, resolver: resolver)
+                }
+            }
             button.setTitle(action.title, for: .normal)
             button.onTap = { [weak self] in self?.onAction(index) }
             actionButtons.append(button)

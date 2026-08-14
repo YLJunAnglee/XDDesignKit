@@ -22,7 +22,7 @@ button.onTap = { submit() }
 | 跟随品牌主题的主操作 | `.brand` |
 | 次要操作 | `.secondary` |
 | 白底描边（`#CDCFD4`，固定 1 pt） | `.outline` |
-| 透明底描边（固定 1 pt） | `.outlineTransparent` |
+| 透明底描边（`#CDCFD4`，固定 1 pt） | `.outlineTransparent` |
 | 低强调文字操作 | `.text` |
 | 营销渐变操作 | `.gradient` |
 | 大、中、小尺寸 | `.large` / `.medium` / `.small` |
@@ -30,6 +30,8 @@ button.onTap = { submit() }
 | 纯图标按钮 | `.only`，并设置 `accessibilityLabel` |
 | 内置语义图标 | `.arrowForward` / `.checkmarkCircle` / `.refresh` |
 | 禁用、选中、加载 | `isEnabled` / `isSelected` / `isLoading` |
+
+`.primary` 与 `.outline` 的默认禁用背景为 `#C9C9C9`；其中仅 `.primary` 的禁用文字为 `#FFFFFF`。透明描边和文字按钮的禁用背景保持透明。
 
 影响 UI 的参数：
 
@@ -185,7 +187,7 @@ accessory: .textInput(
 )
 ```
 
-自定义 Action 的 `role` 可选 `.normal` / `.cancel` / `.destructive`，`appearance` 可选 `.filled` / `.outlined` / `.outlinedTransparent` / `.text`。`.cancel(...)` 默认使用透明描边外观；若需白底描边，显式使用 `.outlined`。Action 和 Checkbox 标题不能为空；`maximumLength`、`.lines(n)` 和 `.height(h)` 必须为正数；`onLimitReached` 接收 `.maximumLength` 或 `.maximumHeight`。
+自定义 Action 的 `role` 可选 `.normal` / `.cancel` / `.destructive`，`appearance` 可选 `.filled` / `.outlined` / `.outlinedTransparent` / `.text`。`.cancel(...)` 默认使用透明背景和 `#CDCFD4` 的固定 `1 pt` 描边；该颜色由 `XDAlertTheme.cancelActionBorderToken` 独立控制。普通 `XDButton` `.outlineTransparent` 默认同样使用 `#CDCFD4` 边框，但两者的 Theme 配置互不影响。若需白底描边，显式使用 `.outlined`。Action 和 Checkbox 标题不能为空；`maximumLength`、`.lines(n)` 和 `.height(h)` 必须为正数；`onLimitReached` 接收 `.maximumLength` 或 `.maximumHeight`。
 
 需要复选或输入结果时，从 Action Context 获取：
 

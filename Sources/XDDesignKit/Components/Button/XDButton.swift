@@ -72,6 +72,13 @@ public final class XDButton: UIButton, XDThemeable {
     private var accessibilityValueBeforeLoading: String?
     private var addedLoadingAccessibilityTrait = false
 
+    /// Component-owned override used by composed controls without changing the
+    /// public style contract of the button itself. Returning nil preserves the
+    /// style's normal border color for that state.
+    var borderColorOverride: ((XDComponentState, XDThemeResolver) -> UIColor?)? {
+        didSet { updateAppearance() }
+    }
+
     public init(
         style: XDButtonStyle = .primary,
         size: XDButtonSize = .large,
@@ -227,9 +234,9 @@ public final class XDButton: UIButton, XDThemeable {
         contentEdgeInsets = resolvedContentInsets(metric: metric, theme: theme)
         layer.cornerRadius = resolver.radius(metric.radiusToken)
         layer.borderWidth = appearance.borderWidthToken.map(resolver.borderWidth) ?? 0
-        layer.borderColor = appearance.borderToken.map {
-            buttonTheme.color(for: $0, resolver: resolver).cgColor
-        }
+        let borderColor = borderColorOverride?(state, resolver)
+            ?? appearance.borderToken.map { buttonTheme.color(for: $0, resolver: resolver) }
+        layer.borderColor = borderColor?.cgColor
 
         invalidateIntrinsicContentSize()
         setNeedsLayout()

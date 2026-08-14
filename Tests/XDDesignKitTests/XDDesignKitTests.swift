@@ -580,6 +580,38 @@ final class XDDesignKitTests: XCTestCase {
         )
     }
 
+    func testAlertCancelActionAndTransparentButtonUseLightDefaultBorders() throws {
+        let context = try XDThemeContext(initialTheme: .defaultTheme)
+        let contentView = XDAlertStandardContentView(
+            configuration: .init(
+                title: "提示",
+                actions: [.cancel("取消"), .primary("确定")]
+            ),
+            themeContext: context,
+            onAction: { _ in },
+            onClose: {}
+        )
+        let buttons = descendantControls(in: contentView).compactMap { $0 as? XDButton }
+        let cancelButton = try XCTUnwrap(buttons.first { $0.currentTitle == "取消" })
+        let standaloneButton = XDButton(
+            style: .outlineTransparent,
+            size: .large,
+            themeContext: context
+        )
+
+        XCTAssertEqual(cancelButton.backgroundColor, .clear)
+        XCTAssertEqual(cancelButton.layer.borderWidth, 1, accuracy: 0.001)
+        XCTAssertEqual(UIColor(cgColor: cancelButton.layer.borderColor!).hexString, "#CDCFD4")
+        XCTAssertEqual(UIColor(cgColor: standaloneButton.layer.borderColor!).hexString, "#CDCFD4")
+
+        cancelButton.isHighlighted = true
+        XCTAssertEqual(UIColor(cgColor: cancelButton.layer.borderColor!).hexString, "#CDCFD4")
+
+        cancelButton.isHighlighted = false
+        cancelButton.isEnabled = false
+        XCTAssertEqual(UIColor(cgColor: cancelButton.layer.borderColor!).hexString, "#D0D0D0")
+    }
+
     private func descendantControls(in view: UIView) -> [UIControl] {
         view.subviews.flatMap { subview in
             (subview as? UIControl).map { [$0] } ?? descendantControls(in: subview)
@@ -872,7 +904,8 @@ final class XDDesignKitTests: XCTestCase {
         button.isSelected = true
         button.isHighlighted = true
         button.isEnabled = false
-        XCTAssertEqual(button.backgroundColor?.hexString, "#F2F2F2")
+        XCTAssertEqual(button.backgroundColor?.hexString, "#C9C9C9")
+        XCTAssertEqual(button.currentTitleColor.hexString, "#FFFFFF")
     }
 
     func testButtonPrimaryAndOutlineMatchProjectSpecification() throws {
@@ -916,7 +949,7 @@ final class XDDesignKitTests: XCTestCase {
 
         XCTAssertEqual(button.backgroundColor, .clear)
         XCTAssertEqual(button.layer.borderWidth, 1, accuracy: 0.001)
-        XCTAssertEqual(UIColor(cgColor: button.layer.borderColor!).hexString, "#222222")
+        XCTAssertEqual(UIColor(cgColor: button.layer.borderColor!).hexString, "#CDCFD4")
         XCTAssertEqual(
             context.currentTheme.components.button
                 .appearance(for: .outlineTransparent, state: .normal)
@@ -927,6 +960,9 @@ final class XDDesignKitTests: XCTestCase {
             context.currentTheme.components.alert.buttonStyle(for: .outlinedTransparent),
             .outlineTransparent
         )
+
+        button.isHighlighted = true
+        XCTAssertEqual(UIColor(cgColor: button.layer.borderColor!).hexString, "#CDCFD4")
     }
 
     func testButtonPrimaryAndOutlineColorsStayFixedInDarkMode() {

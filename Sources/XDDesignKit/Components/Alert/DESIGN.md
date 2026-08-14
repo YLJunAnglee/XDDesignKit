@@ -17,6 +17,9 @@ card, transition, theme binding, accessibility focus, and dismissal lifecycle.
   and accepts one exclusive upper-bound policy: visible line count, absolute
   height, or unlimited growth within the alert shell.
 - Optional actions. Filled, outlined, and text actions reuse `XDButton` styles.
+  Cancel actions keep the transparent outline treatment but resolve their
+  border through `XDAlertTheme.cancelActionBorderToken`; the default is the
+  fixed `#CDCFD4`, without changing standalone transparent-outline buttons.
 
 ## Theme contract
 

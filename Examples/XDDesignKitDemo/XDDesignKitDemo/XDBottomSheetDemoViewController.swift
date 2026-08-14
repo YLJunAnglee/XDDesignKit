@@ -245,7 +245,7 @@ private final class XDBottomSheetSimpleContentController: XDBottomSheetDemoConte
         super.viewDidLoad()
         stack.addArrangedSubview(titleLabel(contentTitle))
         stack.addArrangedSubview(messageLabel(message))
-        stack.addArrangedSubview(actionButton("关闭", style: .outline) { [weak self] in self?.dismissSheet?() })
+        stack.addArrangedSubview(actionButton("关闭", style: .outlineTransparent) { [weak self] in self?.dismissSheet?() })
     }
 }
 

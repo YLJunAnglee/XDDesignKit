@@ -6,7 +6,7 @@ final class XDButtonDemoViewController: UIViewController, XDThemeable {
     private let contentStack = UIStackView()
     private let previewButton = XDButton(style: .primary, size: .large)
     private let statusLabel = UILabel()
-    private let styleControl = UISegmentedControl(items: ["主", "品牌", "次", "描边", "文字", "渐变"])
+    private let styleControl = UISegmentedControl(items: ["主", "品牌", "次", "描边", "透明描边", "文字", "渐变"])
     private let stateControl = UISegmentedControl(items: ["正常", "选中", "禁用", "加载"])
     private let placementControl = UISegmentedControl(items: ["前", "后", "上", "下", "纯图标"])
     private let stackedPaddingControl = UISegmentedControl(items: ["紧凑", "默认", "宽松"])
@@ -322,7 +322,15 @@ final class XDButtonDemoViewController: UIViewController, XDThemeable {
     }
 
     @objc private func styleChanged() {
-        let styles: [XDButtonStyle] = [.primary, .brand, .secondary, .outline, .text, .gradient]
+        let styles: [XDButtonStyle] = [
+            .primary,
+            .brand,
+            .secondary,
+            .outline,
+            .outlineTransparent,
+            .text,
+            .gradient
+        ]
         previewButton.apply(style: styles[styleControl.selectedSegmentIndex])
     }
 

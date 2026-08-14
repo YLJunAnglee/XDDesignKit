@@ -203,7 +203,7 @@ public extension XDButtonTheme {
         let primary = XDButtonStyleAppearance(
             normal: .init(backgroundToken: fixedDark, titleToken: fixedLight),
             highlighted: .init(backgroundToken: fixedDarkHighlighted, titleToken: fixedLight),
-            disabled: .init(backgroundToken: fixedDisabledBackground, titleToken: fixedDisabledForeground)
+            disabled: .init(backgroundToken: fixedDisabledBackground, titleToken: fixedLight)
         )
         let brand = XDButtonStyleAppearance(
             normal: .init(backgroundToken: .brandPrimary, titleToken: .textInverse),
@@ -221,8 +221,8 @@ public extension XDButtonTheme {
             disabled: .init(backgroundToken: fixedDisabledBackground, titleToken: fixedDisabledForeground, borderToken: fixedDisabledBorder, borderWidthToken: .regular)
         )
         let outlineTransparent = XDButtonStyleAppearance(
-            normal: .init(backgroundToken: nil, titleToken: fixedDark, borderToken: fixedDark, borderWidthToken: .regular),
-            highlighted: .init(backgroundToken: fixedLightHighlighted, titleToken: fixedDark, borderToken: fixedDark, borderWidthToken: .regular),
+            normal: .init(backgroundToken: nil, titleToken: fixedDark, borderToken: fixedOutlineBorder, borderWidthToken: .regular),
+            highlighted: .init(backgroundToken: fixedLightHighlighted, titleToken: fixedDark, borderToken: fixedOutlineBorder, borderWidthToken: .regular),
             disabled: .init(backgroundToken: nil, titleToken: fixedDisabledForeground, borderToken: fixedDisabledBorder, borderWidthToken: .regular)
         )
         let text = XDButtonStyleAppearance(
@@ -262,7 +262,7 @@ public extension XDButtonTheme {
                 fixedDarkHighlighted: XDThemeColor(UIColor(hex: 0x333333)),
                 fixedLight: XDThemeColor(.white),
                 fixedLightHighlighted: XDThemeColor(UIColor(hex: 0xF7F7F7)),
-                fixedDisabledBackground: XDThemeColor(UIColor(hex: 0xF2F2F2)),
+                fixedDisabledBackground: XDThemeColor(UIColor(hex: 0xC9C9C9)),
                 fixedDisabledForeground: XDThemeColor(UIColor(hex: 0x999999)),
                 fixedDisabledBorder: XDThemeColor(UIColor(hex: 0xD0D0D0)),
                 fixedOutlineBorder: XDThemeColor(UIColor(hex: 0xCDCFD4))
