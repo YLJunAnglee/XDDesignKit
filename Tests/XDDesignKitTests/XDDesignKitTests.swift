@@ -1418,8 +1418,8 @@ final class XDDesignKitTests: XCTestCase {
         toggle.layoutIfNeeded()
         let track = try XCTUnwrap(toggle.subviews.first)
         let thumb = try XCTUnwrap(track.subviews.first)
-        XCTAssertEqual(track.frame, CGRect(x: 0, y: 8, width: 52, height: 28))
-        XCTAssertEqual(thumb.frame, CGRect(x: 2, y: 2, width: 24, height: 24))
+        XCTAssertEqual(track.frame, CGRect(x: 2, y: 9, width: 48, height: 26))
+        XCTAssertEqual(thumb.frame, CGRect(x: 2, y: 2, width: 22, height: 22))
         XCTAssertEqual(track.backgroundColor?.hexString, "#D9D9D9")
         XCTAssertEqual(thumb.backgroundColor?.hexString, "#FFFFFF")
         XCTAssertEqual(toggle.accessibilityValue, "已关闭")
@@ -1427,8 +1427,33 @@ final class XDDesignKitTests: XCTestCase {
 
         XCTAssertTrue(toggle.isOn)
         XCTAssertEqual(values, [true])
-        XCTAssertEqual(track.backgroundColor?.hexString, "#212121")
+        XCTAssertEqual(track.backgroundColor?.hexString, "#4F5CE7")
+        XCTAssertEqual(thumb.frame, CGRect(x: 24, y: 2, width: 22, height: 22))
         XCTAssertEqual(toggle.accessibilityValue, "已开启")
+    }
+
+    func testToggleUsesDarkModeFigmaColors() throws {
+        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 320, height: 640))
+        let viewController = UIViewController()
+        window.rootViewController = viewController
+        window.makeKeyAndVisible()
+        defer { window.isHidden = true }
+        viewController.overrideUserInterfaceStyle = .dark
+
+        let toggle = XDToggle(isOn: true)
+        viewController.view.addSubview(toggle)
+        viewController.view.layoutIfNeeded()
+        toggle.xdApplyTheme()
+
+        XCTAssertEqual(toggle.traitCollection.userInterfaceStyle, .dark)
+        let track = try XCTUnwrap(toggle.subviews.first)
+        let thumb = try XCTUnwrap(track.subviews.first)
+        XCTAssertEqual(track.backgroundColor?.hexString, "#6F78FF")
+        XCTAssertEqual(thumb.backgroundColor?.hexString, "#D5D5D7")
+
+        toggle.setOn(false, animated: false)
+        XCTAssertEqual(track.backgroundColor?.hexString, "#2A2A2C")
+        XCTAssertEqual(thumb.backgroundColor?.hexString, "#898C91")
     }
 
     func testToggleWaitsForConfirmationAndCanCancelOrCommit() {

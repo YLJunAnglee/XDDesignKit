@@ -5,6 +5,7 @@ final class DemoViewController: UIViewController, XDThemeable {
     private let scrollView = UIScrollView()
     private let contentStack = UIStackView()
     private let themeControl = UISegmentedControl(items: ["Orange", "Blue"])
+    private let appearanceControl = UISegmentedControl(items: ["跟随系统", "浅色", "深色"])
     private var themeUpdates: [(UITraitCollection) -> Void] = []
 
     override func viewDidLoad() {
@@ -83,7 +84,14 @@ final class DemoViewController: UIViewController, XDThemeable {
     private func themeSelector() -> UIView {
         themeControl.selectedSegmentIndex = XDThemeManager.shared.currentTheme.identifier == XDTheme.blueTheme.identifier ? 1 : 0
         themeControl.addTarget(self, action: #selector(handleThemeControlChanged), for: .valueChanged)
-        return card(themeControl)
+
+        appearanceControl.selectedSegmentIndex = 0
+        appearanceControl.addTarget(self, action: #selector(handleAppearanceControlChanged), for: .valueChanged)
+
+        let stack = UIStackView(arrangedSubviews: [themeControl, appearanceControl])
+        stack.axis = .vertical
+        stack.spacing = XDSpacing.sm
+        return card(stack)
     }
 
     private func colorGrid() -> UIView {
@@ -425,5 +433,10 @@ final class DemoViewController: UIViewController, XDThemeable {
         } catch {
             assertionFailure("Built-in theme is invalid: \(error)")
         }
+    }
+
+    @objc private func handleAppearanceControlChanged() {
+        let styles: [UIUserInterfaceStyle] = [.unspecified, .light, .dark]
+        overrideUserInterfaceStyle = styles[appearanceControl.selectedSegmentIndex]
     }
 }

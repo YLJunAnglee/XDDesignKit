@@ -8,7 +8,7 @@ public enum XDToggleSelectionBehavior: Sendable, Equatable {
     case requiresConfirmation
 }
 
-/// A compact binary switch with fixed 52 by 28 point visual metrics.
+/// A compact binary switch with a 52 by 28 point visual frame.
 @MainActor
 public final class XDToggle: UIControl, XDThemeable {
     /// Called whenever the toggle commits a new value.
@@ -31,12 +31,6 @@ public final class XDToggle: UIControl, XDThemeable {
     private let trackView = UIView()
     private let thumbView = UIView()
     private var storedIsOn: Bool
-
-    private let visualSize = CGSize(width: 52, height: 28)
-    private let thumbDiameter: CGFloat = 24
-    private let thumbInset: CGFloat = 2
-    private let offTrackColor = UIColor(red: 0.85, green: 0.85, blue: 0.85, alpha: 1)
-    private let onTrackColor = UIColor(red: 0.13, green: 0.13, blue: 0.13, alpha: 1)
 
     public override var isEnabled: Bool {
         didSet { updatePresentation(animated: false) }
@@ -66,9 +60,10 @@ public final class XDToggle: UIControl, XDThemeable {
         xdApplyTheme()
     }
 
-    /// The control reserves a 52 by 44 point layout and hit area; its visible track remains 52 by 28 points.
+    /// The control reserves at least a 52 by 44 point layout and hit area.
     public override var intrinsicContentSize: CGSize {
-        CGSize(
+        let visualSize = xdThemeContext.currentTheme.components.toggle.visualSize
+        return CGSize(
             width: max(visualSize.width, xdThemeContext.currentTheme.components.button.minimumHitTargetSize.width),
             height: max(visualSize.height, xdThemeContext.currentTheme.components.button.minimumHitTargetSize.height)
         )
@@ -121,20 +116,24 @@ public final class XDToggle: UIControl, XDThemeable {
 
     public override func layoutSubviews() {
         super.layoutSubviews()
+        let toggleTheme = xdThemeContext.currentTheme.components.toggle
+        let trackSize = toggleTheme.trackSize
         trackView.frame = CGRect(
-            x: (bounds.width - visualSize.width) / 2,
-            y: (bounds.height - visualSize.height) / 2,
-            width: visualSize.width,
-            height: visualSize.height
+            x: (bounds.width - trackSize.width) / 2,
+            y: (bounds.height - trackSize.height) / 2,
+            width: trackSize.width,
+            height: trackSize.height
         )
-        trackView.layer.cornerRadius = visualSize.height / 2
+        trackView.layer.cornerRadius = trackSize.height / 2
         thumbView.frame = CGRect(
-            x: storedIsOn ? visualSize.width - thumbInset - thumbDiameter : thumbInset,
-            y: (visualSize.height - thumbDiameter) / 2,
-            width: thumbDiameter,
-            height: thumbDiameter
+            x: storedIsOn
+                ? trackSize.width - toggleTheme.thumbInset - toggleTheme.thumbDiameter
+                : toggleTheme.thumbInset,
+            y: (trackSize.height - toggleTheme.thumbDiameter) / 2,
+            width: toggleTheme.thumbDiameter,
+            height: toggleTheme.thumbDiameter
         )
-        thumbView.layer.cornerRadius = thumbDiameter / 2
+        thumbView.layer.cornerRadius = toggleTheme.thumbDiameter / 2
     }
 
     public override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
@@ -155,7 +154,6 @@ public final class XDToggle: UIControl, XDThemeable {
     private func setup() {
         trackView.isUserInteractionEnabled = false
         thumbView.isUserInteractionEnabled = false
-        thumbView.backgroundColor = .white
         trackView.addSubview(thumbView)
         addSubview(trackView)
         accessibilityLabel = "开关"
@@ -164,8 +162,14 @@ public final class XDToggle: UIControl, XDThemeable {
     }
 
     private func updatePresentation(animated: Bool) {
+        let toggleTheme = xdThemeContext.currentTheme.components.toggle
+        let trackColor = (storedIsOn ? toggleTheme.onTrackColor : toggleTheme.offTrackColor)
+            .resolved(compatibleWith: traitCollection)
+        let thumbColor = (storedIsOn ? toggleTheme.onThumbColor : toggleTheme.offThumbColor)
+            .resolved(compatibleWith: traitCollection)
         let applyAppearance = {
-            self.trackView.backgroundColor = self.storedIsOn ? self.onTrackColor : self.offTrackColor
+            self.trackView.backgroundColor = trackColor
+            self.thumbView.backgroundColor = thumbColor
             self.alpha = self.isEnabled && !self.isPending ? 1 : self.xdThemeResolver.opacity(.disabled)
             self.setNeedsLayout()
             self.layoutIfNeeded()

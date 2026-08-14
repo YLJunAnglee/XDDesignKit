@@ -159,7 +159,7 @@ close.onTap = { [weak self] in self?.dismiss(animated: true) }
 
 ## Toggle
 
-`XDToggle` 用于设置项等二元开关。控件承载 `52 × 44pt` 的布局和点击区域，视觉轨道为居中的 `52 × 28pt`；关闭轨道为 `#D9D9D9`，开启轨道为 `#212121`，滑块为白色。
+`XDToggle` 用于设置项等二元开关。控件承载至少 `52 × 44pt` 的布局和点击区域；`52 × 28pt` 视觉框内包含居中的 `48 × 26pt` 轨道和 `22 × 22pt` 滑块。浅色模式开启为 `#4F5CE7` 轨道、白色滑块，关闭为 `#D9D9D9` 轨道、白色滑块；暗黑模式开启为 `#6F78FF` 轨道、`#D5D5D7` 滑块，关闭为 `#2A2A2C` 轨道、`#898C91` 滑块。颜色随系统 Light/Dark Trait 自动切换。
 
 ```swift
 let autoBlankToggle = XDToggle(isOn: settings.autoWordHollow)

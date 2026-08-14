@@ -93,7 +93,7 @@ close.onTap = { dismiss(animated: true) }
 
 ## XDToggle
 
-用于设置项等二元开关。控件布局和点击区域为至少 `52 × 44 pt`，其中视觉轨道固定为居中的 `52 × 28 pt`：关闭为 `#D9D9D9`、开启为 `#212121`、滑块为白色；边框固定为无。不要将控件高度压缩为 28pt。
+用于设置项等二元开关。控件布局和点击区域为至少 `52 × 44 pt`，其中 `52 × 28 pt` 视觉框内包含居中的 `48 × 26 pt` 轨道和 `22 × 22 pt` 滑块；边框固定为无。浅色模式开启为 `#4F5CE7` 轨道、`#FFFFFF` 滑块，关闭为 `#D9D9D9` 轨道、`#FFFFFF` 滑块；暗黑模式开启为 `#6F78FF` 轨道、`#D5D5D7` 滑块，关闭为 `#2A2A2C` 轨道、`#898C91` 滑块。颜色会随系统 Light/Dark Trait 自动切换，不要在业务层手动覆盖。不要将控件高度压缩为 28pt。
 
 ```swift
 let toggle = XDToggle(isOn: settings.autoWordHollow)
@@ -114,6 +114,8 @@ toggle.onValueChangeRequest = { requestedValue in
 ```
 
 `isOn` 或 `setOn(_:animated:)` 只刷新 UI，不发送 `.valueChanged`；用户操作或 `resolveValueChange(to:)` 成功提交时才发送。请求期间 `isPending == true`，组件阻止重复点击并使用禁用态透明度。
+
+需要自定义 Toggle 的 Light/Dark 配色或视觉尺寸时，通过 `XDThemeComponents.toggle` 配置 `XDToggleTheme`，并将组合后的 Theme 注入 `XDThemeContext`；不要直接修改控件内部 View。
 
 ## XDAlert
 
