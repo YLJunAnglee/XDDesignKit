@@ -1208,7 +1208,7 @@ final class XDDesignKitTests: XCTestCase {
                 let first = placement == .top ? image.frame : title.frame
                 let second = placement == .top ? title.frame : image.frame
                 XCTAssertEqual(title.frame.midX, image.frame.midX, accuracy: 0.001, "\(placement.rawValue) horizontal alignment")
-                XCTAssertGreaterThanOrEqual(second.minY - first.maxY, 8, "\(placement.rawValue) spacing")
+                XCTAssertGreaterThanOrEqual(second.minY - first.maxY, 8 - 0.001, "\(placement.rawValue) spacing")
             }
         }
     }
