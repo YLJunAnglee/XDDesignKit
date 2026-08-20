@@ -272,6 +272,7 @@ XDBottomSheet.show(
 | 居中并限制最大宽度 | `.centered(maximumWidth: 560)` | 宽度在横向安全区域内解析 |
 
 高度最终都受当前安全区和键盘剩余空间限制。宽度默认 `.fullWidth`，iPhone 横屏和 iPad 下都覆盖整个窗口宽度，不因横向安全区自动留白；业务控件仍应使用自身 View 的 `safeAreaLayoutGuide` 避让刘海、灵动岛等区域。
+组件会在首次布局得到容器真实尺寸后才激活 Surface 的宽高约束，不使用会与业务 required 内边距冲突的临时占位尺寸。
 
 例如，业务根内容应填充容器，内部控件在横向使用安全区：
 

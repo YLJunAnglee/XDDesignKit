@@ -227,10 +227,10 @@ final class XDBottomSheetViewController: UIViewController, XDThemeable, UIGestur
         view.addSubview(surfaceView)
         surfaceView.addSubview(contentViewController.view)
         [dimmingView, surfaceView, contentViewController.view].forEach { $0.translatesAutoresizingMaskIntoConstraints = false }
-        surfaceWidthConstraint = surfaceView.widthAnchor.constraint(equalToConstant: 1)
-        // This remains inactive until the first fitting pass establishes the
-        // real height. Activating a placeholder would conflict with content
-        // that is pinned to both vertical edges.
+        // Width and height remain inactive until the first layout pass resolves
+        // the real container size. Activating placeholder dimensions here can
+        // conflict with otherwise valid content that uses required edge insets.
+        surfaceWidthConstraint = surfaceView.widthAnchor.constraint(equalToConstant: 0)
         surfaceHeightConstraint = surfaceView.heightAnchor.constraint(equalToConstant: 0)
         surfaceBottomConstraint = surfaceView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         contentBottomConstraint = contentViewController.view.bottomAnchor.constraint(equalTo: surfaceView.safeAreaLayoutGuide.bottomAnchor)
@@ -241,7 +241,6 @@ final class XDBottomSheetViewController: UIViewController, XDThemeable, UIGestur
             dimmingView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             surfaceView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             surfaceBottomConstraint,
-            surfaceWidthConstraint,
             contentViewController.view.topAnchor.constraint(equalTo: surfaceView.topAnchor),
             contentViewController.view.leadingAnchor.constraint(equalTo: surfaceView.leadingAnchor),
             contentViewController.view.trailingAnchor.constraint(equalTo: surfaceView.trailingAnchor),
@@ -270,6 +269,9 @@ final class XDBottomSheetViewController: UIViewController, XDThemeable, UIGestur
         guard layoutEnvironmentChanged || contentMeasurementIsInvalid || forceContentMeasurement else { return }
 
         surfaceWidthConstraint.constant = width
+        if !surfaceWidthConstraint.isActive {
+            surfaceWidthConstraint.isActive = true
+        }
         surfaceBottomConstraint.constant = -keyboardOverlap
         let bottomSafeInset = keyboardOverlap > 0 ? 0 : view.safeAreaInsets.bottom
         let maximumHeight = max(1, view.bounds.height - view.safeAreaInsets.top - keyboardOverlap)

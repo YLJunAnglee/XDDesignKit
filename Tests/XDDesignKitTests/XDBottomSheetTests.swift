@@ -37,6 +37,13 @@ final class XDBottomSheetTests: XCTestCase {
                     && $0.firstAttribute == .height
             }
         )
+        XCTAssertFalse(
+            surfaceView.constraints.contains {
+                $0.isActive
+                    && $0.firstItem === surfaceView
+                    && $0.firstAttribute == .width
+            }
+        )
 
         layout(controller, size: CGSize(width: 390, height: 844))
         XCTAssertEqual(surfaceView.bounds.height, 128, accuracy: 0.5)
@@ -44,6 +51,40 @@ final class XDBottomSheetTests: XCTestCase {
         contentHeight.constant = 196
         controller.invalidateLayout(animated: false)
         XCTAssertEqual(surfaceView.bounds.height, 196, accuracy: 0.5)
+    }
+
+    func testRequiredHorizontalInsetsWaitForResolvedSurfaceWidth() {
+        let contentController = UIViewController()
+        let stack = UIStackView(arrangedSubviews: [UILabel(), UILabel()])
+        stack.axis = .horizontal
+        stack.spacing = 8
+        contentController.view.addSubview(stack)
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            stack.topAnchor.constraint(equalTo: contentController.view.topAnchor),
+            stack.leadingAnchor.constraint(equalTo: contentController.view.leadingAnchor, constant: 16),
+            stack.trailingAnchor.constraint(equalTo: contentController.view.trailingAnchor, constant: -16),
+            stack.bottomAnchor.constraint(equalTo: contentController.view.bottomAnchor),
+            stack.heightAnchor.constraint(equalToConstant: 44)
+        ])
+
+        let controller = makeController(content: contentController)
+        controller.loadViewIfNeeded()
+        guard let surfaceView = contentController.view.superview else {
+            return XCTFail("Expected the content controller to be installed in a surface")
+        }
+
+        XCTAssertFalse(
+            surfaceView.constraints.contains {
+                $0.isActive
+                    && $0.firstItem === surfaceView
+                    && $0.firstAttribute == .width
+            }
+        )
+
+        layout(controller, size: CGSize(width: 390, height: 844))
+        XCTAssertEqual(surfaceView.bounds.width, 390, accuracy: 0.5)
+        XCTAssertEqual(stack.bounds.width, 358, accuracy: 0.5)
     }
 
     func testFixedFractionAndWidthStrategiesResolveAgainstCurrentContainer() {
