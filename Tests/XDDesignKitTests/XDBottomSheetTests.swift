@@ -53,6 +53,108 @@ final class XDBottomSheetTests: XCTestCase {
         XCTAssertEqual(surfaceView.bounds.height, 196, accuracy: 0.5)
     }
 
+    func testContentBottomConstraintAnchorsToSurfaceBottom() {
+        let contentController = UIViewController()
+        let content = UIView()
+        contentController.view.addSubview(content)
+        content.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            content.topAnchor.constraint(equalTo: contentController.view.topAnchor),
+            content.leadingAnchor.constraint(equalTo: contentController.view.leadingAnchor),
+            content.trailingAnchor.constraint(equalTo: contentController.view.trailingAnchor),
+            content.bottomAnchor.constraint(equalTo: contentController.view.bottomAnchor),
+            content.heightAnchor.constraint(equalToConstant: 284)
+        ])
+
+        let controller = makeController(content: contentController)
+        layout(controller, size: CGSize(width: 390, height: 844))
+
+        guard let surfaceView = contentController.view.superview else {
+            return XCTFail("Expected the content controller to be installed in a surface")
+        }
+        guard let contentBottomConstraint = surfaceView.constraints.first(where: {
+            $0.isActive
+                && $0.firstItem === contentController.view
+                && $0.firstAttribute == .bottom
+        }) else {
+            return XCTFail("Expected an active content bottom constraint")
+        }
+
+        XCTAssertTrue(contentBottomConstraint.secondItem === surfaceView)
+        XCTAssertEqual(contentBottomConstraint.secondAttribute, .bottom)
+        XCTAssertEqual(contentBottomConstraint.constant, 0, accuracy: 0.5)
+        XCTAssertEqual(surfaceView.bounds.height, 284, accuracy: 0.5)
+        XCTAssertEqual(contentController.view.bounds.height, 284, accuracy: 0.5)
+        XCTAssertEqual(content.bounds.height, 284, accuracy: 0.5)
+    }
+
+    func testContentHeightAndSurfaceUseSameNonzeroBottomSafeArea() {
+        let contentController = UIViewController()
+        let content = UIView()
+        contentController.view.addSubview(content)
+        content.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            content.topAnchor.constraint(equalTo: contentController.view.topAnchor),
+            content.leadingAnchor.constraint(equalTo: contentController.view.leadingAnchor),
+            content.trailingAnchor.constraint(equalTo: contentController.view.trailingAnchor),
+            content.bottomAnchor.constraint(equalTo: contentController.view.bottomAnchor),
+            content.heightAnchor.constraint(equalToConstant: 284)
+        ])
+
+        let controller = makeController(content: contentController)
+        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 390, height: 844))
+        window.rootViewController = controller
+        window.makeKeyAndVisible()
+        defer { window.isHidden = true }
+        controller.additionalSafeAreaInsets.bottom = 25
+        layout(controller, size: CGSize(width: 390, height: 844))
+
+        guard let surfaceView = contentController.view.superview else {
+            return XCTFail("Expected the content controller to be installed in a surface")
+        }
+        guard let contentBottomConstraint = surfaceView.constraints.first(where: {
+            $0.isActive
+                && $0.firstItem === contentController.view
+                && $0.firstAttribute == .bottom
+        }) else {
+            return XCTFail("Expected an active content bottom constraint")
+        }
+
+        let bottomSafeInset = controller.view.safeAreaInsets.bottom
+        XCTAssertGreaterThanOrEqual(bottomSafeInset, 25)
+        XCTAssertTrue(contentBottomConstraint.secondItem === surfaceView)
+        XCTAssertEqual(contentBottomConstraint.secondAttribute, .bottom)
+        XCTAssertEqual(contentBottomConstraint.constant, -bottomSafeInset, accuracy: 0.5)
+        XCTAssertEqual(surfaceView.bounds.height, 284 + bottomSafeInset, accuracy: 0.5)
+        XCTAssertEqual(contentController.view.bounds.height, 284, accuracy: 0.5)
+        XCTAssertEqual(content.bounds.height, 284, accuracy: 0.5)
+    }
+
+    func testVerticalGeometryUsesOneBottomInsetForContentAndSurfaceHeight() {
+        let safeAreaInsets = UIEdgeInsets(top: 47, left: 0, bottom: 25, right: 0)
+
+        let withoutKeyboard = XDBottomSheetVerticalGeometryResolver.resolve(
+            containerHeight: 844,
+            safeAreaInsets: safeAreaInsets,
+            keyboardOverlap: 0
+        )
+        XCTAssertEqual(withoutKeyboard.contentBottomInset, 25, accuracy: 0.001)
+        XCTAssertEqual(withoutKeyboard.maximumHeight, 797, accuracy: 0.001)
+        XCTAssertEqual(
+            withoutKeyboard.resolvedContentBottomInset(for: 10),
+            10,
+            accuracy: 0.001
+        )
+
+        let withKeyboard = XDBottomSheetVerticalGeometryResolver.resolve(
+            containerHeight: 844,
+            safeAreaInsets: safeAreaInsets,
+            keyboardOverlap: 300
+        )
+        XCTAssertEqual(withKeyboard.contentBottomInset, 0, accuracy: 0.001)
+        XCTAssertEqual(withKeyboard.maximumHeight, 497, accuracy: 0.001)
+    }
+
     func testRequiredHorizontalInsetsWaitForResolvedSurfaceWidth() {
         let contentController = UIViewController()
         let stack = UIStackView(arrangedSubviews: [UILabel(), UILabel()])

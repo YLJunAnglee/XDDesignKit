@@ -98,6 +98,8 @@ Scene-owned Overlay Coordinator
 
 Surface 延伸到窗口底部。无键盘时，容器把系统底部安全区计入 Sheet 总高度；键盘出现后，Surface 停靠在键盘顶部，不重复保留设备底部安全区。
 
+Surface 总高度与内容底部约束必须使用同一次解析得到的底部安全区值。容器通过显式 bottom inset 划分内容区域，不依赖 Surface 子视图的 `safeAreaLayoutGuide` 传播结果，避免业务内容的精确高度约束与 Surface 总高度发生冲突。
+
 ## 公共 API 草案
 
 以下签名用于验证职责和调用成本，不代表实现前已经冻结到逐字符兼容。实现阶段可以在不改变已确认语义的前提下调整标签和组织方式。
@@ -486,23 +488,22 @@ queued → cancelled
 - 内容闭包应按业务生命周期使用弱引用，组件不替业务修复循环引用。
 - 不使用未经审计的 `@unchecked Sendable`。
 
-## 预计文件结构
+## 当前文件结构
 
 ```text
 Components/BottomSheet/
 ├── XDBottomSheet.swift
 ├── XDBottomSheetConfiguration.swift
-├── XDBottomSheetContext.swift
+├── XDBottomSheetHandle.swift
 ├── XDBottomSheetTheme.swift
-├── XDBottomSheetContainerViewController.swift
-├── XDBottomSheetContentAdapter.swift
-├── XDBottomSheetLayout.swift
-├── XDBottomSheetInteractionController.swift
+├── XDBottomSheetViewController.swift
+├── XDBottomSheetLayoutResolver.swift
+├── XDBottomSheetInteractionResolver.swift
 ├── XDBottomSheetOverlayCoordinator.swift
 └── DESIGN.md
 ```
 
-具体拆分以实现后的职责为准，不为了文件数量机械拆分。纯布局解析、状态转换和关闭决策应尽量从 UIKit View 更新中分离，便于 XCTest 覆盖。
+`XDBottomSheetViewController` 承载 Child containment、Surface 布局、键盘、手势和关闭生命周期；纯宽高、键盘几何与滚动区域决策放在 Resolver 中独立测试。继续扩展交互或多档高度前，再评估是否提取独立状态或交互 Controller；不为了文件数量机械拆分。
 
 ## 实施顺序
 

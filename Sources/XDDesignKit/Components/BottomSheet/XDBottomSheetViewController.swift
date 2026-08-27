@@ -233,7 +233,7 @@ final class XDBottomSheetViewController: UIViewController, XDThemeable, UIGestur
         surfaceWidthConstraint = surfaceView.widthAnchor.constraint(equalToConstant: 0)
         surfaceHeightConstraint = surfaceView.heightAnchor.constraint(equalToConstant: 0)
         surfaceBottomConstraint = surfaceView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-        contentBottomConstraint = contentViewController.view.bottomAnchor.constraint(equalTo: surfaceView.safeAreaLayoutGuide.bottomAnchor)
+        contentBottomConstraint = contentViewController.view.bottomAnchor.constraint(equalTo: surfaceView.bottomAnchor)
         NSLayoutConstraint.activate([
             dimmingView.topAnchor.constraint(equalTo: view.topAnchor),
             dimmingView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -273,8 +273,12 @@ final class XDBottomSheetViewController: UIViewController, XDThemeable, UIGestur
             surfaceWidthConstraint.isActive = true
         }
         surfaceBottomConstraint.constant = -keyboardOverlap
-        let bottomSafeInset = keyboardOverlap > 0 ? 0 : view.safeAreaInsets.bottom
-        let maximumHeight = max(1, view.bounds.height - view.safeAreaInsets.top - keyboardOverlap)
+        let verticalGeometry = XDBottomSheetVerticalGeometryResolver.resolve(
+            containerHeight: view.bounds.height,
+            safeAreaInsets: view.safeAreaInsets,
+            keyboardOverlap: keyboardOverlap
+        )
+        let maximumHeight = verticalGeometry.maximumHeight
         var contentBottomNeedsReactivation = false
         let desiredHeight: CGFloat
         switch configuration.height.storage {
@@ -292,11 +296,18 @@ final class XDBottomSheetViewController: UIViewController, XDThemeable, UIGestur
                 lastMeasuredContentWidth = width
             }
             let contentHeight = cachedContentHeight ?? 0
-            desiredHeight = min(contentHeight + bottomSafeInset, maximum ?? .greatestFiniteMagnitude)
+            desiredHeight = min(
+                contentHeight + verticalGeometry.contentBottomInset,
+                maximum ?? .greatestFiniteMagnitude
+            )
         case .fixed(let height): desiredHeight = height
         case .fraction(let value): desiredHeight = maximumHeight * value
         }
-        surfaceHeightConstraint.constant = min(maximumHeight, desiredHeight)
+        let surfaceHeight = min(maximumHeight, desiredHeight)
+        surfaceHeightConstraint.constant = surfaceHeight
+        contentBottomConstraint.constant = -verticalGeometry.resolvedContentBottomInset(
+            for: surfaceHeight
+        )
         if !surfaceHeightConstraint.isActive {
             surfaceHeightConstraint.isActive = true
         }

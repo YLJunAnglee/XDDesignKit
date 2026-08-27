@@ -336,6 +336,8 @@ if handle.presentationFailure != nil {
 
 底部 Surface 默认只提供 Theme 的背景和顶部圆角，系统底部安全区由容器计入。底部停靠键盘出现后 Surface 停靠在键盘顶部；iPad 浮动键盘不会整体顶起 Surface。业务内容不要重复加设备底部安全区常量。视觉通过 `XDBottomSheetTheme`（`XDThemeComponents.bottomSheet`）统一配置，不在单次调用中传颜色、圆角或动画参数。
 
+容器使用同一份底部安全区值计算 Surface 总高度和内容底部 inset，不依赖 Surface 子视图的 `safeAreaLayoutGuide` 自动传播。业务根 View 可以使用完整的 required 纵向约束表达精确内容高度，无需降低约束优先级来规避安全区冲突。
+
 ## 普通 UIKit UI
 
 没有对应组件时，使用 UIKit，并优先使用语义 Token：
