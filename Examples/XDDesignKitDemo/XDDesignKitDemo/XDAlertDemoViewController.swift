@@ -61,7 +61,7 @@ final class XDAlertDemoViewController: UIViewController, XDThemeable {
             ("分别指定对齐方式", .secondary, { [weak self] in self?.showCustomTextAlignment() })
         ])
         addSection("带附加控件", cases: [
-            ("复选框 · 单按钮", .outline, { [weak self] in self?.showCheckboxSingleAction() }),
+            ("复选框 · 居中", .outline, { [weak self] in self?.showCheckboxSingleAction() }),
             ("复选框 · 双按钮", .outline, { [weak self] in self?.showCheckboxConfirmation() }),
             ("输入框 · 单按钮", .secondary, { [weak self] in self?.showTextFieldSingleAction() }),
             ("输入框 · 双按钮", .secondary, { [weak self] in self?.showTextFieldConfirmation() }),
@@ -125,7 +125,7 @@ final class XDAlertDemoViewController: UIViewController, XDThemeable {
     }
 
     private func showCheckboxSingleAction() {
-        show(title: "清理已完成内容", message: "清理后不可恢复。", accessory: .checkbox(title: "我已知晓此操作不可恢复"), actions: [.primary("清理")])
+        show(title: "提示", message: "可按需关闭后续提醒。", accessory: .checkbox(title: "下次不再提示", alignment: .center), actions: [.primary("知道了")])
     }
 
     private func showCheckboxConfirmation() {

@@ -37,8 +37,10 @@ metrics rather than view-level literals.
 
 Selected and unselected checkbox images ship in the Swift Package resource
 bundle. The visual row follows the 24-point design size, while hit testing uses
-the theme's independent 44-point minimum target. The full row, including its
-trailing empty area, toggles the control.
+the theme's independent 44-point minimum target. The full row, including empty
+space around its content, toggles the control. Checkbox content defaults to
+semantic leading alignment; callers may center the icon-and-title group without
+changing the full-width interactive row or its hit target.
 
 ## Text input contract
 

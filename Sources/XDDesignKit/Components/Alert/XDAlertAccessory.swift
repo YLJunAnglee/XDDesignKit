@@ -1,5 +1,18 @@
 import UIKit
 
+/// Controls the horizontal placement of checkbox content inside an alert accessory row.
+public struct XDAlertCheckboxAlignment: RawRepresentable, Hashable, Sendable {
+    public let rawValue: String
+
+    public init(rawValue: String) {
+        precondition(!rawValue.isEmpty, "An alert checkbox alignment must not be empty")
+        self.rawValue = rawValue
+    }
+
+    public static let leading = Self(rawValue: "leading")
+    public static let center = Self(rawValue: "center")
+}
+
 /// Controls how a standard alert text input lays out its editable content.
 public enum XDAlertTextInputLayout: Hashable, Sendable {
     /// Preserves the compact, single-line text-field behavior.
@@ -29,12 +42,32 @@ public struct XDAlertCheckboxConfiguration {
     public let title: String
     public let isSelected: Bool
     public let isEnabled: Bool
+    public let alignment: XDAlertCheckboxAlignment
 
-    public init(title: String, isSelected: Bool = false, isEnabled: Bool = true) {
+    public init(
+        title: String,
+        isSelected: Bool = false,
+        isEnabled: Bool = true
+    ) {
+        self.init(
+            title: title,
+            isSelected: isSelected,
+            isEnabled: isEnabled,
+            alignment: .leading
+        )
+    }
+
+    public init(
+        title: String,
+        isSelected: Bool = false,
+        isEnabled: Bool = true,
+        alignment: XDAlertCheckboxAlignment
+    ) {
         precondition(!title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, "A checkbox title must not be empty")
         self.title = title
         self.isSelected = isSelected
         self.isEnabled = isEnabled
+        self.alignment = alignment
     }
 }
 
@@ -122,7 +155,30 @@ public struct XDAlertAccessory {
         isSelected: Bool = false,
         isEnabled: Bool = true
     ) -> XDAlertAccessory {
-        XDAlertAccessory(storage: .checkbox(.init(title: title, isSelected: isSelected, isEnabled: isEnabled)))
+        checkbox(
+            title: title,
+            isSelected: isSelected,
+            isEnabled: isEnabled,
+            alignment: .leading
+        )
+    }
+
+    public static func checkbox(
+        title: String,
+        isSelected: Bool = false,
+        isEnabled: Bool = true,
+        alignment: XDAlertCheckboxAlignment
+    ) -> XDAlertAccessory {
+        XDAlertAccessory(
+            storage: .checkbox(
+                .init(
+                    title: title,
+                    isSelected: isSelected,
+                    isEnabled: isEnabled,
+                    alignment: alignment
+                )
+            )
+        )
     }
 
     public static func textField(

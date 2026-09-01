@@ -496,6 +496,82 @@ final class XDDesignKitTests: XCTestCase {
         XCTAssertEqual(textField.actions.count, 1)
     }
 
+    func testAlertCheckboxAlignmentDefaultsToLeadingAndAcceptsCenter() throws {
+        let legacyConfigurationFactory: (String, Bool, Bool) -> XDAlertCheckboxConfiguration =
+            XDAlertCheckboxConfiguration.init
+        let legacyAccessoryFactory: (String, Bool, Bool) -> XDAlertAccessory =
+            XDAlertAccessory.checkbox
+        let leadingAccessory = XDAlertAccessory.checkbox(title: "默认靠前")
+        let centeredAccessory = XDAlertAccessory.checkbox(title: "居中", alignment: .center)
+        let legacyConfiguration = legacyConfigurationFactory("兼容旧初始化方法", false, true)
+        let legacyAccessory = legacyAccessoryFactory("兼容旧工厂方法", false, true)
+
+        guard case let .checkbox(leadingConfiguration) = leadingAccessory.storage,
+              case let .checkbox(centeredConfiguration) = centeredAccessory.storage,
+              case let .checkbox(legacyAccessoryConfiguration) = legacyAccessory.storage else {
+            return XCTFail("Expected checkbox accessories")
+        }
+        XCTAssertEqual(leadingConfiguration.alignment, .leading)
+        XCTAssertEqual(centeredConfiguration.alignment, .center)
+        XCTAssertEqual(legacyConfiguration.alignment, .leading)
+        XCTAssertEqual(legacyAccessoryConfiguration.alignment, .leading)
+    }
+
+    func testAlertCheckboxCenterAlignmentCentersShortContentWithoutChangingRowWidth() throws {
+        let context = try XDThemeContext(initialTheme: .defaultTheme)
+        let contentView = XDAlertStandardContentView(
+            configuration: .init(
+                title: "提示",
+                accessory: .checkbox(title: "下次不再提示", alignment: .center),
+                showsCloseButton: true
+            ),
+            themeContext: context,
+            onAction: { _ in },
+            onClose: {}
+        )
+        layoutAlertContentView(contentView)
+
+        let control = try XCTUnwrap(
+            descendantControls(in: contentView).first {
+                $0.accessibilityLabel == "下次不再提示"
+            }
+        )
+        let stack = try XCTUnwrap(control.subviews.first { $0 is UIStackView })
+
+        XCTAssertEqual(control.bounds.width, contentView.bounds.width, accuracy: 0.001)
+        XCTAssertEqual(stack.frame.midX, control.bounds.midX, accuracy: 0.001)
+    }
+
+    func testAlertCheckboxCenterAlignmentConstrainsAndWrapsLongContent() throws {
+        let context = try XDThemeContext(initialTheme: .defaultTheme)
+        let title = "这是一段用于验证居中复选项在内容区域内正常换行且不会超出弹窗边界的较长提示文字"
+        let contentView = XDAlertStandardContentView(
+            configuration: .init(
+                title: "提示",
+                accessory: .checkbox(title: title, alignment: .center),
+                showsCloseButton: true
+            ),
+            themeContext: context,
+            onAction: { _ in },
+            onClose: {}
+        )
+        layoutAlertContentView(contentView)
+
+        let control = try XCTUnwrap(
+            descendantControls(in: contentView).first {
+                $0.accessibilityLabel == title
+            }
+        )
+        let stack = try XCTUnwrap(control.subviews.first { $0 is UIStackView })
+        let label = try XCTUnwrap(descendantLabels(in: control).first)
+        let inset = XDAlertTheme.default.sectionContentInset
+
+        XCTAssertEqual(stack.frame.midX, control.bounds.midX, accuracy: 0.001)
+        XCTAssertGreaterThanOrEqual(stack.frame.minX, inset - 0.001)
+        XCTAssertLessThanOrEqual(stack.frame.maxX, control.bounds.maxX - inset + 0.001)
+        XCTAssertGreaterThan(label.bounds.height, label.font.lineHeight)
+    }
+
     func testAlertCheckboxAssetsAreBundled() {
         XCTAssertNotNil(
             UIImage(

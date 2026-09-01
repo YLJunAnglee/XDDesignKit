@@ -172,12 +172,22 @@ Accessory 参数：
 
 | 类型 | 可用参数 |
 | --- | --- |
-| `.checkbox(...)` | `title`、`isSelected`、`isEnabled` |
+| `.checkbox(...)` | `title`、`isSelected`、`isEnabled`、`alignment`（`.leading` / `.center`，默认 `.leading`） |
 | `.textInput(...)` | `placeholder`、`text`、`keyboardType`、`isSecureTextEntry`、`maximumLength`、`showsCharacterCount`、`layout`、`onLimitReached` |
 | 单行布局 | `.singleLine`（默认） |
 | 多行布局 | `.multiline(maximum: .lines(n) / .height(h) / .unlimited)` |
 
 Secure 输入只支持单行。插画参数为 `image`、可选 `caption` 和可选 `accessibilityLabel`。Action 工厂均支持 `title`、`automaticallyDismisses` 和 `handler`；需要自定义语义/外观组合时使用 `XDAlertAction(title:role:appearance:...)`。
+
+短复选项需要在弹窗内整体居中时，显式传 `alignment: .center`；长文本仍受弹窗内容宽度约束并正常换行：
+
+```swift
+accessory: .checkbox(
+    title: "下次不再提示",
+    isSelected: true,
+    alignment: .center
+)
+```
 
 分类名、试卷名等需要让用户感知剩余字数时，设置 `maximumLength` 并启用 `showsCharacterCount: true`；输入框右侧显示 `当前字数/上限`。该样式只支持单行，默认关闭。
 

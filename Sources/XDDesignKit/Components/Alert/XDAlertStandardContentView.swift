@@ -429,6 +429,7 @@ enum XDAlertTextAlignmentResolver {
 @MainActor
 private final class XDAlertCheckboxView: UIControl, XDThemeable {
     let xdThemeContext: XDThemeContext
+    private let alignment: XDAlertCheckboxAlignment
     private let titleLabel = UILabel()
     private let iconView = UIImageView()
     private let stack = UIStackView()
@@ -444,6 +445,7 @@ private final class XDAlertCheckboxView: UIControl, XDThemeable {
 
     init(configuration: XDAlertCheckboxConfiguration, themeContext: XDThemeContext) {
         self.xdThemeContext = themeContext
+        self.alignment = configuration.alignment
         super.init(frame: .zero)
         isSelected = configuration.isSelected
         isEnabled = configuration.isEnabled
@@ -471,9 +473,13 @@ private final class XDAlertCheckboxView: UIControl, XDThemeable {
         iconWidthConstraint = iconView.widthAnchor.constraint(equalToConstant: 1)
         iconHeightConstraint = iconView.heightAnchor.constraint(equalToConstant: 1)
         minimumHeightConstraint = heightAnchor.constraint(greaterThanOrEqualToConstant: 1)
-        contentLeadingConstraint = stack.leadingAnchor.constraint(equalTo: leadingAnchor)
+        if alignment == .center {
+            contentLeadingConstraint = stack.leadingAnchor.constraint(greaterThanOrEqualTo: leadingAnchor)
+        } else {
+            contentLeadingConstraint = stack.leadingAnchor.constraint(equalTo: leadingAnchor)
+        }
         contentTrailingConstraint = stack.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor)
-        NSLayoutConstraint.activate([
+        var constraints: [NSLayoutConstraint] = [
             stack.topAnchor.constraint(equalTo: topAnchor),
             contentLeadingConstraint,
             contentTrailingConstraint,
@@ -481,7 +487,11 @@ private final class XDAlertCheckboxView: UIControl, XDThemeable {
             iconWidthConstraint,
             iconHeightConstraint,
             minimumHeightConstraint
-        ])
+        ]
+        if alignment == .center {
+            constraints.append(stack.centerXAnchor.constraint(equalTo: centerXAnchor))
+        }
+        NSLayoutConstraint.activate(constraints)
         addTarget(self, action: #selector(toggle), for: .touchUpInside)
     }
 
