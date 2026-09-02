@@ -587,6 +587,20 @@ final class XDDesignKitTests: XCTestCase {
                 compatibleWith: nil
             )
         )
+        XCTAssertNotNil(
+            UIImage(
+                named: "xd_alert_checkbox_unselected_16x16",
+                in: XDBundle.module,
+                compatibleWith: nil
+            )
+        )
+        XCTAssertNotNil(
+            UIImage(
+                named: "xd_alert_checkbox_selected_16x16",
+                in: XDBundle.module,
+                compatibleWith: nil
+            )
+        )
     }
 
     func testAlertCheckboxContentAndEmptyAreaHitTheControl() throws {
@@ -1616,6 +1630,16 @@ final class XDDesignKitTests: XCTestCase {
         XCTAssertFalse(checkbox.point(inside: CGPoint(x: -1, y: 22), with: nil))
         XCTAssertFalse(more.point(inside: CGPoint(x: 45, y: 22), with: nil))
         XCTAssertFalse(close.point(inside: CGPoint(x: 22, y: -1), with: nil))
+    }
+
+    func testCheckboxButtonSmallVisualSizePreservesMinimumHitTarget() {
+        let button = XDCheckboxButton(visualSize: .small)
+        button.frame = CGRect(x: 0, y: 0, width: 44, height: 44)
+        button.layoutIfNeeded()
+
+        XCTAssertEqual(button.intrinsicContentSize, CGSize(width: 44, height: 44))
+        XCTAssertEqual(button.subviews.first?.frame, CGRect(x: 14, y: 14, width: 16, height: 16))
+        XCTAssertNotNil(button.subviews.first.flatMap { ($0 as? UIImageView)?.image })
     }
 
     func testFoundationMetricsIncludeMotionTypographyAndPhysicalHairline() {

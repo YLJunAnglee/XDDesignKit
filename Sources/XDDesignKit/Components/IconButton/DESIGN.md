@@ -7,6 +7,13 @@ while the visual matches the Figma specification. Hit-test expansion remains as
 a fallback only when a caller explicitly constrains a button below the theme's
 minimum hit size.
 
+`XDCheckboxButton` additionally accepts `visualSize`: `.standard` (default)
+keeps the 24-point icon, while `.small` switches to the dedicated 16-point
+selected/unselected assets for dense layouts. The icon stays centered and the
+control still reserves the theme's minimum hit target regardless of the visual
+size. `XDCloseButton` accepts `visualSize: .large` for a 28-point icon with the
+same hit-target rule.
+
 The checkbox defaults to immediate state changes and emits `.valueChanged` plus
 `onValueChanged`. In `.requiresConfirmation` mode it first emits
 `onValueChangeRequest`, becomes pending, then commits through

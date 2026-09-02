@@ -61,6 +61,7 @@ button.setIcon(.arrowForward, placement: .trailing)
 | --- | --- |
 | 列表/卡片完成状态，本地立即切换 | `XDCheckboxButton(isSelected:)` + `onValueChanged` |
 | 列表/卡片完成状态，接口成功后才切换 | `selectionBehavior: .requiresConfirmation` + `onValueChangeRequest` |
+| 密集布局中的完成状态（小图标） | `XDCheckboxButton(isSelected:, visualSize: .small)`，视觉图标 16pt |
 | 列表/卡片更多操作 | `XDMoreButton()` + `onTap` |
 | 页面、卡片或自定义弹层的关闭入口 | `XDCloseButton()` + `onTap`；需要 28pt 视觉图标时用 `XDCloseButton(visualSize: .large)` |
 
@@ -87,7 +88,7 @@ let close = XDCloseButton(visualSize: .large)
 close.onTap = { dismiss(animated: true) }
 ```
 
-三者默认布局和点击区均为 44pt。`XDCloseButton` 默认视觉图标为居中的 24pt，需要与 28pt 业务图标对齐时使用 `visualSize: .large`；无论视觉尺寸为何都不要把点击区约束为视觉尺寸，也不要让相邻可点击控件侵入该区域。不传文字、不提供通用 Style 或 Loading。需要场景主题隔离时，在初始化时传入 `themeContext`。
+三者默认布局和点击区均为 44pt。`XDCheckboxButton` 默认视觉图标为居中的 24pt，密集布局需要小图标时使用 `visualSize: .small`（16pt）。`XDCloseButton` 默认视觉图标为居中的 24pt，需要与 28pt 业务图标对齐时使用 `visualSize: .large`；无论视觉尺寸为何都不要把点击区约束为视觉尺寸，也不要让相邻可点击控件侵入该区域。不传文字、不提供通用 Style 或 Loading。需要场景主题隔离时，在初始化时传入 `themeContext`。
 
 `XDCheckboxButton` 默认 `.immediate`，点击后马上更新并发送 `.valueChanged` / `onValueChanged`。`.requiresConfirmation` 点击后只调用 `onValueChangeRequest`，期间 `isPending == true` 且不可重复点击；成功调用 `resolveSelectionChange(to:)`（此时才发送状态变化通知），失败调用 `cancelSelectionChange()` 并保留原状态。复用列表单元格前先取消未完成请求或确保异步回调仍对应同一条数据。
 

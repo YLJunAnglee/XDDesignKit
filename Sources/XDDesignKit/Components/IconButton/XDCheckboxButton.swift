@@ -8,6 +8,32 @@ public enum XDCheckboxButtonSelectionBehavior: Sendable, Equatable {
     case requiresConfirmation
 }
 
+/// The visual icon size of a checkbox; the hit target stays theme-controlled.
+public enum XDCheckboxButtonVisualSize: Sendable {
+    /// 默认的 24pt 勾选图标。
+    case standard
+    /// 较小的 16pt 勾选图标；点击区仍由主题最小点击区控制。
+    case small
+
+    fileprivate var iconSize: CGSize {
+        switch self {
+        case .standard:
+            return CGSize(width: 24, height: 24)
+        case .small:
+            return CGSize(width: 16, height: 16)
+        }
+    }
+
+    fileprivate func assetName(isSelected: Bool) -> String {
+        switch self {
+        case .standard:
+            return isSelected ? "xd_alert_checkbox_selected" : "xd_alert_checkbox_unselected"
+        case .small:
+            return isSelected ? "xd_alert_checkbox_selected_16x16" : "xd_alert_checkbox_unselected_16x16"
+        }
+    }
+}
+
 /// A compact toggle button for completed and uncompleted states.
 @MainActor
 public final class XDCheckboxButton: UIControl, XDThemeable {
@@ -23,7 +49,9 @@ public final class XDCheckboxButton: UIControl, XDThemeable {
     public private(set) var xdThemeContext: XDThemeContext
 
     private let imageView = UIImageView()
-    private let visualIconSize = CGSize(width: 24, height: 24)
+    private let visualSize: XDCheckboxButtonVisualSize
+
+    private var visualIconSize: CGSize { visualSize.iconSize }
 
     public override var isSelected: Bool {
         didSet { updatePresentation() }
@@ -36,10 +64,12 @@ public final class XDCheckboxButton: UIControl, XDThemeable {
     public init(
         isSelected: Bool = false,
         selectionBehavior: XDCheckboxButtonSelectionBehavior = .immediate,
+        visualSize: XDCheckboxButtonVisualSize = .standard,
         themeContext: XDThemeContext = XDThemeManager.shared.globalContext
     ) {
         self.selectionBehavior = selectionBehavior
         self.xdThemeContext = themeContext
+        self.visualSize = visualSize
         super.init(frame: .zero)
         setup()
         self.isSelected = isSelected
@@ -50,13 +80,14 @@ public final class XDCheckboxButton: UIControl, XDThemeable {
     public required init?(coder: NSCoder) {
         self.selectionBehavior = .immediate
         self.xdThemeContext = XDThemeManager.shared.globalContext
+        self.visualSize = .standard
         super.init(coder: coder)
         setup()
         xdRegisterThemeUpdates()
         xdApplyTheme()
     }
 
-    /// The control reserves the theme's minimum hit target; its visible icon remains 24 points.
+    /// The control reserves the theme's minimum hit target; its visible icon keeps the size given by `visualSize`.
     public override var intrinsicContentSize: CGSize {
         xdThemeContext.currentTheme.components.button.minimumHitTargetSize
     }
@@ -124,7 +155,7 @@ public final class XDCheckboxButton: UIControl, XDThemeable {
     }
 
     private func updatePresentation() {
-        let assetName = isSelected ? "xd_alert_checkbox_selected" : "xd_alert_checkbox_unselected"
+        let assetName = visualSize.assetName(isSelected: isSelected)
         let fallbackName = isSelected ? "checkmark.circle.fill" : "circle"
         if let image = UIImage(named: assetName, in: XDBundle.module, compatibleWith: traitCollection) {
             imageView.image = image.withRenderingMode(.alwaysOriginal)
