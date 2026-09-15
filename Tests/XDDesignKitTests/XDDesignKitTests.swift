@@ -179,6 +179,86 @@ final class XDDesignKitTests: XCTestCase {
         XCTAssertFalse(handle.isPending)
     }
 
+    func testSnackBarReportsMissingSceneWithoutPresenting() {
+        let handle = XDSnackBar.show(
+            on: UIViewController(),
+            configuration: .init(message: "已移出", annotation: "撤销") { _ in }
+        )
+
+        XCTAssertEqual(handle.presentationFailure, .presenterNotAttachedToScene)
+        XCTAssertFalse(handle.isPresented)
+        XCTAssertFalse(handle.isPending)
+    }
+
+    func testSnackBarThemeMatchesFigmaDefaultsAndCanBeOverridden() throws {
+        let custom = XDSnackBarTheme.default.merging(
+            maximumWidth: 480,
+            defaultBottomInset: 24,
+            iconSpacing: 6
+        )
+        let theme = XDTheme(
+            identifier: "xd.snack-bar-test",
+            displayName: "Snack Bar Test",
+            colors: [:],
+            components: .default.merging(snackBar: custom),
+            basedOn: .defaultTheme
+        )
+        let context = try XDThemeContext(initialTheme: theme)
+        let resolver = context.resolver(compatibleWith: .init(userInterfaceStyle: .light))
+
+        XCTAssertEqual(custom.color(for: custom.backgroundToken, resolver: resolver).hexString, "#484D54")
+        XCTAssertEqual(custom.color(for: custom.annotationToken, resolver: resolver).hexString, "#ABB2B6")
+        XCTAssertEqual(custom.minimumHeight, 48, accuracy: 0.001)
+        XCTAssertEqual(custom.maximumWidth, 480, accuracy: 0.001)
+        XCTAssertEqual(custom.defaultBottomInset, 24, accuracy: 0.001)
+        XCTAssertEqual(custom.iconSpacing, 6, accuracy: 0.001)
+    }
+
+    func testSnackBarRendersThreePartContentAsOneControl() throws {
+        let configuration = XDSnackBarConfiguration(
+            message: "已移出【民事权利使用民事权利使用……】",
+            annotation: "撤销"
+        ) { _ in }
+        let snackBar = XDSnackBarView(
+            configuration: configuration,
+            themeContext: try XDThemeContext(initialTheme: .defaultTheme)
+        )
+        snackBar.frame = CGRect(x: 0, y: 0, width: 335, height: 48)
+        snackBar.layoutIfNeeded()
+
+        let labels = descendantLabels(in: snackBar)
+        let message = try XCTUnwrap(labels.first { $0.text == configuration.message })
+        let annotation = try XCTUnwrap(labels.first { $0.text == configuration.annotation })
+        let icon = try XCTUnwrap(
+            snackBar.subviews
+                .flatMap(descendantImageViews)
+                .first { $0.image != nil }
+        )
+
+        XCTAssertEqual(snackBar.backgroundColor?.hexString, "#484D54")
+        XCTAssertEqual(snackBar.layer.cornerRadius, 8, accuracy: 0.001)
+        XCTAssertEqual(icon.bounds.size, CGSize(width: 24, height: 24))
+        XCTAssertLessThan(message.frame.minX, annotation.frame.minX)
+        XCTAssertEqual(annotation.textColor.hexString, "#ABB2B6")
+        XCTAssertEqual(snackBar.accessibilityLabel, "\(configuration.message)，撤销")
+        XCTAssertEqual(snackBar.accessibilityTraits, .button)
+    }
+
+    func testSnackBarEntireSurfaceInvokesOneTapHandler() throws {
+        var tapCount = 0
+        let configuration = XDSnackBarConfiguration(message: "已移出", annotation: "撤销") { _ in }
+        let snackBar = XDSnackBarView(
+            configuration: configuration,
+            themeContext: try XDThemeContext(initialTheme: .defaultTheme)
+        )
+        snackBar.onTap = { tapCount += 1 }
+
+        snackBar.sendActions(for: .touchUpInside)
+
+        XCTAssertEqual(tapCount, 1)
+        XCTAssertTrue(descendantControls(in: snackBar).isEmpty)
+    }
+
     func testBottomSheetHeightAndWidthFactoriesExposeConfirmedVariants() {
         XCTAssertEqual(XDBottomSheetHeight.content, .content)
         XCTAssertNotEqual(XDBottomSheetHeight.content(maximum: 300), .content)
@@ -711,6 +791,12 @@ final class XDDesignKitTests: XCTestCase {
     private func descendantLabels(in view: UIView) -> [UILabel] {
         view.subviews.flatMap { subview in
             (subview as? UILabel).map { [$0] } ?? descendantLabels(in: subview)
+        }
+    }
+
+    private func descendantImageViews(in view: UIView) -> [UIImageView] {
+        view.subviews.flatMap { subview in
+            (subview as? UIImageView).map { [$0] } ?? descendantImageViews(in: subview)
         }
     }
 

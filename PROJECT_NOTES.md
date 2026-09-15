@@ -6,7 +6,7 @@
 
 XDDesignKit 是面向 UIKit、最低支持 iOS 14 的 Swift Package 组件库。目前暂不接入主项目，先通过独立 Demo 和测试稳定 API。
 
-当前阶段：**内核稳定 Alpha，`XDButton` 已完成首轮通用化；`XDAlert 0.5.0` 已完成首轮标准能力、Figma 样式校准、组件资源、Theme、Scene 协调器、长内容和键盘适配，并通过专项测试与 Demo 构建。组件库尚未达到 1.0 发布标准。**
+当前阶段：**内核稳定 Alpha，`XDButton`、`XDAlert`、`XDBottomSheet` 和 `XDSnackBar` 已形成可复用基线；组件库尚未达到 1.0 发布标准。**
 
 ## 架构结论
 
@@ -175,7 +175,7 @@ bash Scripts/verify.sh
 两个按需建设的架构入口：
 
 - 数字角标进入多个组件前，实现独立 `XDBadgeView` 和通用挂载边界。
-- Toast 开始前，复用或扩展现有 scene-owned Alert Overlay Coordinator。
+- `XDSnackBar` 已沿用 scene-owned Overlay Coordinator 模式，按 Scene 串行展示且不阻断范围外交互；后续由真实业务接入验证自动关闭、底部避让和连续反馈策略。
 - `XDBottomSheet` 1.0 已收口：任意 `UIView` / `UIViewController` 内容承载、内容/固定/比例高度、宽度策略、键盘与安全区、遮罩和下拉关闭、唯一滚动区自动仲裁、多滚动区显式指定、Scene 串行队列、Theme 与 Handle 生命周期；Demo 已覆盖高度、宽度、滚动、键盘、交互锁定和同 Sheet 二级页面返回。后续真实业务接入属于消费侧验证，不在没有新通用需求时继续扩张 1.0 API。
 
 ## 下次继续前先读

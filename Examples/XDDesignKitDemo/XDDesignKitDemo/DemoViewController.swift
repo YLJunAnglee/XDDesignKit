@@ -64,6 +64,9 @@ final class DemoViewController: UIViewController, XDThemeable {
         contentStack.addArrangedSubview(sectionTitle("Toggles"))
         contentStack.addArrangedSubview(toggleSamples())
 
+        contentStack.addArrangedSubview(sectionTitle("Snack Bars"))
+        contentStack.addArrangedSubview(snackBarSamples())
+
         contentStack.addArrangedSubview(sectionTitle("Alerts"))
         contentStack.addArrangedSubview(alertSamples())
 
@@ -303,6 +306,27 @@ final class DemoViewController: UIViewController, XDThemeable {
             self?.navigationController?.pushViewController(XDAlertDemoViewController(), animated: true)
         }
         stack.addArrangedSubview(openAlertDemo)
+        return card(stack)
+    }
+
+    private func snackBarSamples() -> UIView {
+        let stack = UIStackView()
+        stack.axis = .vertical
+        stack.spacing = XDSpacing.sm
+
+        let show = XDButton(style: .primary, size: .large)
+        show.setTitle("显示可点击 SnackBar", for: .normal)
+        show.onTap = { [weak self] in
+            guard let self else { return }
+            XDSnackBar.show(
+                on: self,
+                configuration: .init(
+                    message: "已移出【民事权利使用民事权利使用……】",
+                    annotation: "撤销"
+                ) { _ in }
+            )
+        }
+        stack.addArrangedSubview(show)
         return card(stack)
     }
 

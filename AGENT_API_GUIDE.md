@@ -2,7 +2,7 @@
 
 用于根据 UI 需求选择 XDDesignKit API。完整接入和架构说明见 `README.md`。
 
-当前可用业务组件有 `XDButton`、`XDCheckboxButton`、`XDToggle`、`XDMoreButton`、`XDCloseButton`、`XDAlert` 和 `XDBottomSheet`。不要假设存在 `XDLabel`、`XDTag`、`XDTextField` 等未实现组件。
+当前可用业务组件有 `XDButton`、`XDCheckboxButton`、`XDToggle`、`XDMoreButton`、`XDCloseButton`、`XDSnackBar`、`XDAlert` 和 `XDBottomSheet`。不要假设存在 `XDLabel`、`XDTag`、`XDTextField` 等未实现组件。
 
 本库面向 UIKit（iOS 14+），业务 Target 使用前先 `import XDDesignKit`。本页覆盖 XDDesignKit 特有的 UI 选择和约束，不重复 UIKit 继承 API。视觉以 `Examples/XDDesignKitDemo` 为准，精确签名以 `Sources/XDDesignKit` 为准；冲突时遵循源码并更新本页。
 
@@ -117,6 +117,36 @@ toggle.onValueChangeRequest = { requestedValue in
 `isOn` 或 `setOn(_:animated:)` 只刷新 UI，不发送 `.valueChanged`；用户操作或 `resolveValueChange(to:)` 成功提交时才发送。请求期间 `isPending == true`，组件阻止重复点击并使用禁用态透明度。
 
 需要自定义 Toggle 的 Light/Dark 配色或视觉尺寸时，通过 `XDThemeComponents.toggle` 配置 `XDToggleTheme`，并将组合后的 Theme 注入 `XDThemeContext`；不要直接修改控件内部 View。
+
+## XDSnackBar
+
+用于页面内短暂状态反馈。图标、正文、尾部标注和空白区域属于同一个按钮，点击任意位置都触发同一个 `onTap`；它没有遮罩，也不会阻断范围外的页面交互。
+
+```swift
+XDSnackBar.show(
+    on: self,
+    configuration: .init(
+        message: "已移出【民事权利使用……】",
+        annotation: "撤销"
+    ) { context in
+        restoreRemovedItem()
+    }
+)
+```
+
+影响行为的参数：
+
+| API | 参数作用 |
+| --- | --- |
+| `message` | 必填单行正文；空间不足时尾部截断 |
+| `annotation` | 可选尾部标注文案；保持完整显示，但不形成独立点击区 |
+| `icon` | 可选语义图标；默认 `.checkMark` |
+| `duration` | 自动关闭秒数；默认 3 秒，`nil` 表示不自动关闭 |
+| `bottomInset` | 临时覆盖距离安全区底部的间距，用于避让页面底部按钮 |
+| `automaticallyDismissesOnTap` | 点击回调后是否自动关闭；默认 `true` |
+| `XDSnackBarHandle` | 查询 `isPresented` / `isPending`，或主动关闭、取消排队 |
+
+同一 `UIWindowScene` 内的 SnackBar 串行展示。展示必须由已经进入 Scene 的 Controller 发起；组件不查找全局窗口。默认宽度为安全区两侧各留 20 pt，iPad 和横屏居中且最大宽度 560 pt。视觉统一通过 `XDThemeComponents.snackBar` 配置；不要在业务层直接覆盖内部颜色、圆角、字号和间距。
 
 ## XDAlert
 

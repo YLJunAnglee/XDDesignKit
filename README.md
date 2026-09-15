@@ -29,7 +29,7 @@ dependencies: [
 ]
 ```
 
-组件自带的图片资源会随 Swift Package 一起分发，业务项目不需要重复导入 Alert 复选框等组件资源。
+组件自带的图片资源会随 Swift Package 一起分发，业务项目不需要重复导入 Alert 复选框、SnackBar 状态图标等组件资源。
 
 ## 架构
 
@@ -156,6 +156,26 @@ close.onTap = { [weak self] in self?.dismiss(animated: true) }
 三者默认布局和点击区均为 44pt，视觉图标为居中的 24pt；不要把它们约束为 24pt 或让相邻可点击控件侵入该区域。不提供标题、通用 Style 或 Loading 参数。
 
 `XDCheckboxButton` 默认点击即切换。接口成功后才更新状态时，初始化传入 `selectionBehavior: .requiresConfirmation`：点击只触发 `onValueChangeRequest` 并进入 `isPending`，成功调用 `resolveSelectionChange(to:)`，失败调用 `cancelSelectionChange()`。
+
+## SnackBar
+
+`XDSnackBar` 用于页面内短暂状态反馈。它没有遮罩，范围外的页面仍可交互；图标、正文、尾部标注以及行内空白属于同一个按钮，点击任意位置执行同一个回调。
+
+```swift
+let handle = XDSnackBar.show(
+    on: self,
+    configuration: .init(
+        message: "已移出【民事权利使用……】",
+        annotation: "撤销",
+        icon: .checkMark,
+        duration: 3
+    ) { context in
+        restoreRemovedItem()
+    }
+)
+```
+
+默认距离安全区底部 16 pt；页面存在底部操作区时，通过 `bottomInset` 覆盖该距离。传入 `duration: nil` 可保持显示，随后使用 `handle.dismiss()` 或点击关闭。同一 Scene 的多个 SnackBar 会串行展示，主题和布局通过 `XDThemeComponents.snackBar` 配置。
 
 ## Toggle
 

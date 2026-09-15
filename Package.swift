@@ -20,6 +20,7 @@ let package = Package(
                 "Components/Button/DESIGN.md",
                 "Components/Alert/DESIGN.md",
                 "Components/BottomSheet/DESIGN.md",
+                "Components/SnackBar/DESIGN.md",
                 "Theme/TYPOGRAPHY.md"
             ],
             resources: [
