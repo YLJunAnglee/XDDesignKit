@@ -82,6 +82,9 @@ final class XDSnackBarView: UIControl, XDThemeable {
         leadingStack.alignment = .center
         contentStack.axis = .horizontal
         contentStack.alignment = .center
+        // 让触摸穿透到 UIControl，避免 stack 截获点击。
+        leadingStack.isUserInteractionEnabled = false
+        contentStack.isUserInteractionEnabled = false
 
         leadingStack.addArrangedSubview(iconView)
         leadingStack.addArrangedSubview(messageLabel)
