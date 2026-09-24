@@ -3,8 +3,8 @@ import XCTest
 
 @MainActor
 final class XDDesignKitTests: XCTestCase {
-    func testVersionIsNotEmpty() {
-        XCTAssertFalse(XDDesignKit.version.isEmpty)
+    func testVersionMatchesRelease() {
+        XCTAssertEqual(XDDesignKit.version, "0.5.16")
     }
 
     func testHexColorInitializer() {
@@ -90,7 +90,7 @@ final class XDDesignKitTests: XCTestCase {
 
         let button = XDButton(size: .large, themeContext: context)
         XCTAssertEqual(button.intrinsicContentSize.height, 52, accuracy: 0.001)
-        XCTAssertEqual(button.contentEdgeInsets.left, 24, accuracy: 0.001)
+        XCTAssertEqual(button.layoutContentInsets.left, 24, accuracy: 0.001)
     }
 
     func testAlertThemeCanBeOverriddenThroughThemeComponents() throws {
@@ -1394,18 +1394,18 @@ final class XDDesignKitTests: XCTestCase {
         button.setTitle("Done", for: .normal)
         button.setIcon(.checkmarkCircle, placement: .top)
 
-        XCTAssertEqual(button.contentEdgeInsets.top, 12, accuracy: 0.001)
-        XCTAssertEqual(button.contentEdgeInsets.bottom, 12, accuracy: 0.001)
+        XCTAssertEqual(button.layoutContentInsets.top, 12, accuracy: 0.001)
+        XCTAssertEqual(button.layoutContentInsets.bottom, 12, accuracy: 0.001)
         let themeHeight = button.intrinsicContentSize.height
 
         button.stackedContentPaddingOverride = 20
-        XCTAssertEqual(button.contentEdgeInsets.top, 20, accuracy: 0.001)
-        XCTAssertEqual(button.contentEdgeInsets.bottom, 20, accuracy: 0.001)
+        XCTAssertEqual(button.layoutContentInsets.top, 20, accuracy: 0.001)
+        XCTAssertEqual(button.layoutContentInsets.bottom, 20, accuracy: 0.001)
         XCTAssertEqual(button.intrinsicContentSize.height - themeHeight, 16, accuracy: 0.5)
 
         button.iconPlacement = .leading
-        XCTAssertEqual(button.contentEdgeInsets.top, 0, accuracy: 0.001)
-        XCTAssertEqual(button.contentEdgeInsets.bottom, 0, accuracy: 0.001)
+        XCTAssertEqual(button.layoutContentInsets.top, 0, accuracy: 0.001)
+        XCTAssertEqual(button.layoutContentInsets.bottom, 0, accuracy: 0.001)
     }
 
     func testButtonLoadingBlocksActionsWithoutChangingEnabledState() {
@@ -1531,10 +1531,10 @@ final class XDDesignKitTests: XCTestCase {
         button.frame = CGRect(x: 0, y: 0, width: 180, height: 48)
         button.layoutIfNeeded()
 
-        XCTAssertGreaterThanOrEqual(button.titleLabel!.frame.minX, button.contentEdgeInsets.left)
+        XCTAssertGreaterThanOrEqual(button.titleLabel!.frame.minX, button.layoutContentInsets.left)
         XCTAssertLessThanOrEqual(
             button.imageView!.frame.maxX,
-            button.bounds.maxX - button.contentEdgeInsets.right
+            button.bounds.maxX - button.layoutContentInsets.right
         )
     }
 

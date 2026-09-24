@@ -10,7 +10,6 @@ public final class XDButton: UIButton, XDThemeable {
     public var iconPlacement: XDButtonIconPlacement = .leading {
         didSet {
             guard iconPlacement != oldValue else { return }
-            updateContentInsets()
             invalidateIntrinsicContentSize()
             setNeedsLayout()
         }
@@ -26,7 +25,6 @@ public final class XDButton: UIButton, XDThemeable {
                     "Stacked button content padding must be finite and nonnegative"
                 )
             }
-            updateContentInsets()
             invalidateIntrinsicContentSize()
             setNeedsLayout()
         }
@@ -106,7 +104,7 @@ public final class XDButton: UIButton, XDThemeable {
         let theme = xdThemeContext.currentTheme
         let metric = size.metric(in: theme)
         let measurements = contentMeasurements(metric: metric)
-        let insets = resolvedContentInsets(metric: metric, theme: theme)
+        let insets = layoutContentInsets
 
         return CGSize(
             width: measurements.contentSize.width + insets.left + insets.right,
@@ -115,6 +113,13 @@ public final class XDButton: UIButton, XDThemeable {
                 metric.height
             )
         )
+    }
+
+    /// The component-owned insets used for intrinsic sizing and manual title/icon layout.
+    /// Internal for `@testable` verification; business callers should configure the theme instead.
+    var layoutContentInsets: UIEdgeInsets {
+        let theme = xdThemeContext.currentTheme
+        return resolvedContentInsets(metric: size.metric(in: theme), theme: theme)
     }
 
     public func apply(style: XDButtonStyle, size: XDButtonSize? = nil) {
@@ -188,8 +193,6 @@ public final class XDButton: UIButton, XDThemeable {
         titleLabel?.numberOfLines = 1
         titleLabel?.adjustsFontForContentSizeCategory = true
         imageView?.contentMode = .scaleAspectFit
-        adjustsImageWhenHighlighted = false
-        updateContentInsets()
         layer.masksToBounds = true
 
         loadingIndicator.hidesWhenStopped = true
@@ -231,7 +234,6 @@ public final class XDButton: UIButton, XDThemeable {
         loadingIndicator.color = buttonTheme.color(for: appearance.iconToken, resolver: resolver)
         titleLabel?.font = resolver.font(metric.fontToken)
 
-        contentEdgeInsets = resolvedContentInsets(metric: metric, theme: theme)
         layer.cornerRadius = resolver.radius(metric.radiusToken)
         layer.borderWidth = appearance.borderWidthToken.map(resolver.borderWidth) ?? 0
         let borderColor = borderColorOverride?(state, resolver)
@@ -271,7 +273,7 @@ public final class XDButton: UIButton, XDThemeable {
     private func layoutResult(in bounds: CGRect) -> XDButtonLayoutResult {
         let theme = xdThemeContext.currentTheme
         let metric = size.metric(in: theme)
-        let insets = resolvedContentInsets(metric: metric, theme: theme)
+        let insets = layoutContentInsets
         let availableContentSize = CGSize(
             width: max(0, bounds.width - insets.left - insets.right),
             height: max(0, bounds.height - insets.top - insets.bottom)
@@ -325,11 +327,6 @@ public final class XDButton: UIButton, XDThemeable {
         if isHighlighted { state.insert(.highlighted) }
         if isSelected { state.insert(.selected) }
         return state
-    }
-
-    private func updateContentInsets() {
-        let theme = xdThemeContext.currentTheme
-        contentEdgeInsets = resolvedContentInsets(metric: size.metric(in: theme), theme: theme)
     }
 
     private func resolvedContentInsets(metric: XDButtonMetric, theme: XDTheme) -> UIEdgeInsets {

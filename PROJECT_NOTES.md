@@ -59,7 +59,10 @@ XDThemeable UIKit Component
 - `0.5.0` 新增 `XDAlert`、`XDAlertTextAlignment`、组件内复选框资源及独立 Demo；新增 API 保持默认参数兼容，已覆盖自适应/强制对齐、Figma 尺寸、资源读取和点击热区测试。
 - `0.5.7` 将 `XDButton` 的 `outline` 正常态和按下态边框颜色调整为固定 `#CDCFD4`，其余视觉状态保持不变。
 - `XDAlert` 复选项新增默认兼容的 `XDAlertCheckboxAlignment`，业务可显式将短复选内容整体居中，完整行点击热区保持不变。
-- 当前完整验证基线为 100 tests、0 failures；严格并发检查、警告即错误构建和 Demo 构建均已通过。
+- `0.5.13` 为 `XDCheckboxButton` 新增 16pt 视觉尺寸选项，点击区仍保持主题最小值。
+- `0.5.14` 新增 `XDSnackBar` 组件及主题配置；`0.5.15` 修复 Snackbar 内容区域截获点击的问题。
+- `0.5.16` 同步源码版本声明、测试和版本文档，确保发布元数据与 tag 一致；移除 `XDButton` 已废弃的 UIKit 属性写入，保持 Xcode 27 严格警告构建兼容，并将 Demo/test host 的部署目标升至 iOS 15 以恢复当前 Xcode Simulator 验证（库本身仍支持 iOS 14）。
+- 当前测试套件包含 105 个测试用例；严格并发检查、警告即错误构建和 Demo 构建需在发布前验证。
 
 ### XDAlert 当前停点
 
